@@ -17,138 +17,126 @@ class InvoiceController extends Controller {
 		$this->data['theme'] = config('custom.admin_theme');
 	}
 
-	public function getInvoiceList(Request $request) {
-		$invoices = Invoice::withTrashed()
-			->select([
-				'invoices.id',
-				'invoices.name',
-				DB::raw('COALESCE(invoices.description,"--") as description'),
-				DB::raw('IF(invoices.deleted_at IS NULL, "Active","Inactive") as status'),
-			])
-			->where('invoices.company_id', Auth::user()->company_id)
-			->where(function ($query) use ($request) {
-				if (!empty($request->name)) {
-					$query->where('invoices.name', 'LIKE', '%' . $request->name . '%');
-				}
-			})
-			->where(function ($query) use ($request) {
-				if ($request->status == '1') {
-					$query->whereNull('invoices.deleted_at');
-				} else if ($request->status == '0') {
-					$query->whereNotNull('invoices.deleted_at');
-				}
-			})
-			->orderby('invoices.id', 'Desc');
+	/*public function getInvoiceSessionData(){
+		$this->data['search_state'] = Session::get('search_state');
+		$this->data['filter_state_code'] = Session::get('filter_state_code');
+		$this->data['filter_state_name'] = Session::get('filter_state_name');
+		$this->data['filter_state_country'] = Session::get('filter_state_country');
+		$this->data['filter_state_status'] = Session::get('filter_state_status');
+		$this->data['success'] = true;
+		return response()->json($this->data);
+	}*/
 
-		return Datatables::of($invoices)
-			->addColumn('name', function ($invoice) {
-				$status = $invoice->status == 'Active' ? 'green' : 'red';
-				return '<span class="status-indicator ' . $status . '"></span>' . $invoice->name;
+	public function getInvoiceList(Request $request) {
+		$invoices = Invoice::select(
+				DB::raw('DATE_FORMAT(invoices.invoice_date,"%d-%m-%Y") as invoice_date'),
+				//'invoice_ofs.name as invoice_of_name',
+				//'invoices.invoice_of_id',
+				'invoices.invoice_number',
+				'invoices.id as id',
+				'invoices.remarks as description',
+				DB::raw('format(invoices.invoice_amount,0,"en_IN") as invoice_amount'),
+				DB::raw('format(invoices.received_amount,0,"en_IN") as received_amount'),
+				DB::raw('format((invoices.invoice_amount - invoices.received_amount),0,"en_IN") as balance_amount'),
+				'configs.name as status_name',
+				'invoices.invoice_number'
+			)
+			//->leftJoin('configs as invoice_ofs','invoices.invoice_of_id','=','invoice_ofs.id')
+			->leftJoin('configs','invoices.status_id','=','configs.id')
+			->where('invoices.company_id', /*Auth::user()->company_id*/2)
+			/*->where(function ($query) use ($request) {
+				if (!empty($request->name)) {
+					$query->where('ledgers.name', 'LIKE', '%' . $request->name . '%');
+				}
 			})
-			->addColumn('action', function ($invoice) {
-				$img1 = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow.svg');
-				$img1_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow-active.svg');
+			->where(function ($query) use ($request) {
+				if (!empty($request->code)) {
+					$query->where('ledgers.code', 'LIKE', '%' . $request->code . '%');
+				}
+			})
+			*/
+		;
+		return Datatables::of($invoices)
+			->addColumn('action', function ($invoices) {
 				$img_delete = asset('public/themes/' . $this->data['theme'] . '/img/content/table/delete-default.svg');
 				$img_delete_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/delete-active.svg');
+				$view = asset('public/themes/' . $this->data['theme'] . '/img/content/table/eye.svg');
+				$view_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/eye-active.svg');
 				$output = '';
-				if (Entrust::can('edit-invoice')) {
-					$output .= '<a href="#!/invoice-pkg/invoice/edit/' . $invoice->id . '" id = "" title="Edit"><img src="' . $img1 . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img1_active . '" onmouseout=this.src="' . $img1 . '"></a>';
-				}
-				if (Entrust::can('delete-invoice')) {
-					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#invoice-delete-modal" onclick="angular.element(this).scope().deleteInvoice(' . $invoice->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>';
-				}
+				//if (Entrust::can('view-invoice')) {
+					$output .= '<a href="#!/jv-pkg/invoice/view/' . $invoices->id . '" id = "" title="view"><img src="' . $view . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $view_active . '" onmouseout=this.src="' . $view . '"></a>';
+				/*}
+				if (Entrust::can('delete-invoice')) {*/
+					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#invoices-delete-modal" onclick="angular.element(this).scope().deleteLedger(' . $invoices->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>';
+				/*}*/
 				return $output;
 			})
 			->make(true);
 	}
 
-	public function getInvoiceFormData(Request $request) {
+	public function getInvoiceViewData(Request $request) {
 		$id = $request->id;
 		if (!$id) {
-			$invoice = new Invoice;
-			$action = 'Add';
+			$this->data['message'] = 'Invalid Invoice';
+			$this->data['success'] = false;
+			return response()->json($this->data);
 		} else {
-			$invoice = Invoice::withTrashed()->find($id);
-			$action = 'Edit';
+			$this->data['invoice'] = $invoice = Invoice::select(
+				DB::raw('DATE_FORMAT(invoices.invoice_date,"%d-%m-%Y") as invoice_date'),
+				//'invoice_ofs.name as invoice_of_name',
+				//'invoices.invoice_of_id',
+				'invoices.invoice_number',
+				'invoices.id as id',
+				'invoices.remarks as description',
+				DB::raw('format(invoices.invoice_amount,0,"en_IN") as invoice_amount'),
+				DB::raw('format(invoices.received_amount,0,"en_IN") as received_amount'),
+				DB::raw('format((invoices.invoice_amount - invoices.received_amount),0,"en_IN") as balance_amount'),
+				'configs.name as status_name',
+				'invoices.invoice_number'
+			)
+			//->leftJoin('configs as invoice_ofs','invoices.invoice_of_id','=','invoice_ofs.id')
+			->leftJoin('configs','invoices.status_id','=','configs.id')
+			->where('invoices.company_id', /*Auth::user()->company_id*/2)
+			->where('invoices.id',$request->id)
+			->first();
+			$this->data['transactions'] = DB::table('invoice_details')
+				->where('invoice_id',$request->id)
+				->leftJoin('configs','invoice_details.status_id','=','configs.id')
+				//->leftJoin('configs as type','invoices.type_id','=','configs.id')
+				->select(
+					DB::raw('DATE_FORMAT(invoice_details.created_at,"%d-%m-%Y") as invoice_date'),
+					'configs.name as status_name',
+				DB::raw('format(invoice_details.received_amount,0,"en_IN") as received_amount'),
+				DB::raw('format((invoice_details.invoice_amount - invoice_details.received_amount),0,"en_IN") as balance_amount')
+					//,'type.name as type_name'
+				)
+			->get();
 		}
-		$this->data['invoice'] = $invoice;
-		$this->data['action'] = $action;
-		$this->data['theme'];
-
-		return response()->json($this->data);
-	}
-
-	public function saveInvoice(Request $request) {
-		// dd($request->all());
-		try {
-			$error_messages = [
-				'name.required' => 'Name is Required',
-				'name.unique' => 'Name is already taken',
-				'name.min' => 'Name is Minimum 3 Charachers',
-				'name.max' => 'Name is Maximum 64 Charachers',
-				'description.max' => 'Description is Maximum 255 Charachers',
-			];
-			$validator = Validator::make($request->all(), [
-				'name' => [
-					'required:true',
-					'min:3',
-					'max:64',
-					'unique:invoices,name,' . $request->id . ',id,company_id,' . Auth::user()->company_id,
-				],
-				'description' => 'nullable|max:255',
-			], $error_messages);
-			if ($validator->fails()) {
-				return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+			if(!$invoice){
+				$this->data['message'] = 'Invoice Not Found!!';
+				$this->data['success'] = false;
+				return response()->json($this->data);
 			}
-
-			DB::beginTransaction();
-			if (!$request->id) {
-				$invoice = new Invoice;
-				$invoice->created_by_id = Auth::user()->id;
-				$invoice->created_at = Carbon::now();
-				$invoice->updated_at = NULL;
-			} else {
-				$invoice = Invoice::withTrashed()->find($request->id);
-				$invoice->updated_by_id = Auth::user()->id;
-				$invoice->updated_at = Carbon::now();
-			}
-			$invoice->fill($request->all());
-			$invoice->company_id = Auth::user()->company_id;
-			if ($request->status == 'Inactive') {
-				$invoice->deleted_at = Carbon::now();
-				$invoice->deleted_by_id = Auth::user()->id;
-			} else {
-				$invoice->deleted_by_id = NULL;
-				$invoice->deleted_at = NULL;
-			}
-			$invoice->save();
-
-			DB::commit();
-			if (!($request->id)) {
-				return response()->json([
-					'success' => true,
-					'message' => 'Invoice Added Successfully',
-				]);
-			} else {
-				return response()->json([
-					'success' => true,
-					'message' => 'Invoice Updated Successfully',
-				]);
-			}
-		} catch (Exceprion $e) {
-			DB::rollBack();
-			return response()->json([
-				'success' => false,
-				'error' => $e->getMessage(),
-			]);
-		}
+			$this->data['success'] = true;
+			return response()->json($this->data);
 	}
 
 	public function deleteInvoice(Request $request) {
 		DB::beginTransaction();
 		try {
-			$invoice = Invoice::withTrashed()->where('id', $request->id)->forceDelete();
-			if ($invoice) {
+			$ledger = Invoice::where('id', $request->id)->forceDelete();
+			if ($ledger) {
+				$activity = new ActivityLog;
+				$activity->date_time = Carbon::now();
+				$activity->user_id = Auth::user()->id;
+				$activity->module = 'Invoice';
+				$activity->entity_id = $request->id;
+				$activity->entity_type_id = 1420;
+				$activity->activity_id = 282;
+				$activity->activity = 282;
+				$activity->details = json_encode($activity);
+				$activity->save();
+
 				DB::commit();
 				return response()->json(['success' => true, 'message' => 'Invoice Deleted Successfully']);
 			}

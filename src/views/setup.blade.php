@@ -13,18 +13,14 @@
 	        template: '<invoice-list></invoice-list>',
 	        title: 'Invoices',
 	    }).
-	    when('/invoice-pkg/invoice/add', {
-	        template: '<invoice-form></invoice-form>',
-	        title: 'Add Invoice',
-	    }).
-	    when('/invoice-pkg/invoice/edit/:id', {
-	        template: '<invoice-form></invoice-form>',
-	        title: 'Edit Invoice',
+	    when('/invoice-pkg/invoice/view/:id', {
+	        template: '<invoice-view></invoice-view>',
+	        title: 'View Invoice',
 	    });
 	}]);
 
 	//INVOICES
     var invoice_list_template_url = "{{asset($invoice_pkg_prefix.'/public/themes/'.$theme.'/invoice-pkg/invoice/list.html')}}";
-    var invoice_form_template_url = "{{asset($invoice_pkg_prefix.'/public/themes/'.$theme.'/invoice-pkg/invoice/form.html')}}";
+    var invoice_view_template_url = "{{asset($invoice_pkg_prefix.'/public/themes/'.$theme.'/invoice-pkg/invoice/view.html')}}";
 </script>
 <script type="text/javascript" src="{{asset($invoice_pkg_prefix.'/public/themes/'.$theme.'/invoice-pkg/invoice/controller.js')}}"></script>

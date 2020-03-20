@@ -1,17 +1,36 @@
 app.component('invoiceList', {
     templateUrl: invoice_list_template_url,
-    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location, $mdSelect, $element) {
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element, $mdSelect) {
         $scope.loading = true;
         var self = this;
+        self.theme = admin_theme;
+        $('#search_state').focus();
+
+        /*$http.get(
+                laravel_routes['getInvoiceSessionData']
+            ).then(function(response) {
+                console.log(response.data);
+                if(response.data.success){
+                    self.filter_state_code = response.data.filter_state_code;
+                    self.filter_state_country = response.data.filter_state_country;
+                    self.filter_state_name = response.data.filter_state_name;
+                    self.filter_state_status = response.data.filter_state_status;
+                    $('#search_state').val(response.data.search_state);
+                }
+            });*/
         self.hasPermission = HelperService.hasPermission;
-        self.add_permission = self.hasPermission('add-invoice');
+        /*if (!self.hasPermission('invoices')) {
+            window.location = "#!/page-permission-denied";
+            return false;
+        }*/
         var table_scroll;
-        table_scroll = $('.page-main-content').height() - 37;
-        var dataTable = $('#invoices_list').DataTable({
+        table_scroll = $('.page-main-content.list-page-content').height() - 37;
+        setTimeout(function(){
+        var dataTable = $('#invoice_list').DataTable({
             "dom": cndn_dom_structure,
             "language": {
-                // "search": "",
-                // "searchPlaceholder": "Search",
+                "search": "",
+                "searchPlaceholder": "Search",
                 "lengthMenu": "Rows _MENU_",
                 "paginate": {
                     "next": '<i class="icon ion-ios-arrow-forward"></i>',
@@ -26,14 +45,13 @@ app.component('invoiceList', {
             stateLoadCallback: function(settings) {
                 var state_save_val = JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
                 if (state_save_val) {
-                    $('#search_invoice').val(state_save_val.search.search);
+                    $('#search_state').val(state_save_val.search.search);
                 }
                 return JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
             },
             serverSide: true,
             paging: true,
             stateSave: true,
-            ordering: false,
             scrollY: table_scroll + "px",
             scrollCollapse: true,
             ajax: {
@@ -41,15 +59,24 @@ app.component('invoiceList', {
                 type: "GET",
                 dataType: "json",
                 data: function(d) {
-                    d.name = $('#invoice_name').val();
-                    d.status = $('#status').val();
+                    d.state_code = self.filter_state_code;
+                    d.state_name = self.filter_state_name;
+                    d.status =self.filter_state_status;
+                    d.filter_country_id = self.filter_state_country;
                 },
             },
-
             columns: [
                 { data: 'action', class: 'action', name: 'action', searchable: false },
-                { data: 'name', name: 'invoices.name' },
-                { data: 'description', name: 'invoices.description' },
+                { data: 'invoice_date', searchable: false},
+                { data: 'invoice_number', name: 'invoices.invoice_number' },
+               // { data: 'invoices_of_name', name: 'invoices.invoices_of_name' },
+                //{ data: 'account_code', name: 'regions', searchable: false },
+                //{ data: 'account_code', name: 'regions', searchable: false },
+                { data: 'invoice_amount',  searchable: false },
+                { data: 'received_amount',  searchable: false },
+                { data: 'balance_amount',  searchable: false },
+                { data: 'description', name: 'invoices.remarks' },
+                { data: 'status_name', name: 'configs.name' },
             ],
             "infoCallback": function(settings, start, end, max, total, pre) {
                 $('#table_info').html(total)
@@ -62,25 +89,30 @@ app.component('invoiceList', {
         $('.dataTables_length select').select2();
 
         $('.refresh_table').on("click", function() {
-            $('#invoices_list').DataTable().ajax.reload();
+            $('#state_list').DataTable().ajax.reload();
         });
 
         $scope.clear_search = function() {
-            $('#search_invoice').val('');
-            $('#invoices_list').DataTable().search('').draw();
+            $('#search_state').val('');
+            $('#state_list').DataTable().search('').draw();
         }
 
-        var dataTables = $('#invoices_list').dataTable();
-        $("#search_invoice").keyup(function() {
+        var dataTables = $('#state_list').dataTable();
+        $("#search_state").keyup(function() {
             dataTables.fnFilter(this.value);
         });
 
+        //FOCUS ON SEARCH FIELD
+        setTimeout(function() {
+            $('div.dataTables_filter input').focus();
+        }, 2500);
+
         //DELETE
-        $scope.deleteInvoice = function($id) {
-            $('#invoice_id').val($id);
+        $scope.deleteState = function($id) {
+            $('#state_id').val($id);
         }
         $scope.deleteConfirm = function() {
-            $id = $('#invoice_id').val();
+            $id = $('#state_id').val();
             $http.get(
                 laravel_routes['deleteInvoice'], {
                     params: {
@@ -90,13 +122,19 @@ app.component('invoiceList', {
             ).then(function(response) {
                 if (response.data.success) {
                     custom_noty('success', 'Invoice Deleted Successfully');
-                    $('#invoices_list').DataTable().ajax.reload(function(json) {});
+                    $('#invoice_list').DataTable().ajax.reload();
                     $location.path('/invoice-pkg/invoice/list');
                 }
             });
         }
 
         //FOR FILTER
+        $http.get(
+            laravel_routes['getInvoiceFilter']
+        ).then(function(response) {
+            // console.log(response);
+            self.country_list = response.data.country_list;
+        });
         self.status = [
             { id: '', name: 'Select Status' },
             { id: '1', name: 'Active' },
@@ -107,6 +145,7 @@ app.component('invoiceList', {
         });
         $scope.clearSearchTerm = function() {
             $scope.searchTerm = '';
+            $scope.searchTerm1 = '';
         };
         /* Modal Md Select Hide */
         $('.modal').bind('click', function(event) {
@@ -115,101 +154,82 @@ app.component('invoiceList', {
             }
         });
 
-        $('#invoice_name').on('keyup', function() {
-            dataTables.fnFilter();
+        var datatables = $('#state_list').dataTable();
+        $('#name').on('keyup', function() {
+            datatables.fnFilter();
+        });
+        $('#code').on('keyup', function() {
+            datatables.fnFilter();
         });
         $scope.onSelectedStatus = function(val) {
             $("#status").val(val);
-            dataTables.fnFilter();
+            self.filter_state_status = val;
+            datatables.fnFilter();
+        }
+        $scope.onSelectedCountry = function(val) {
+            self.filter_state_country  = val;
+            $("#filter_country_id").val(val);
+            datatables.fnFilter();
         }
         $scope.reset_filter = function() {
-            $("#invoice_name").val('');
-            $("#status").val('');
-            dataTables.fnFilter();
+            self.filter_state_code = '';
+            self.filter_state_country  = '';
+            self.filter_state_name = '';
+            filter_state_status = '';
+            datatables.fnFilter();
         }
 
         $rootScope.loading = false;
+        }, 2500);
     }
 });
+
 //------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------
-app.component('invoiceForm', {
-    templateUrl: invoice_form_template_url,
-    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
+app.component('invoiceView', {
+    templateUrl: invoice_view_template_url,
+    controller: function($http, HelperService, $scope, $routeParams, $rootScope) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
+        /*if (!self.hasPermission('view-invoice')) {
+            window.location = "#!/page-permission-denied";
+            return false;
+        }*/
+        /*self.region_permission = self.hasPermission('regions');
+        self.city_permission = self.hasPermission('cities');*/
         self.angular_routes = angular_routes;
         $http.get(
-            laravel_routes['getInvoiceFormData'], {
+            laravel_routes['getInvoiceViewData'], {
                 params: {
-                    id: typeof($routeParams.id) == 'undefined' ? null : $routeParams.id,
+                    id: $routeParams.id,
                 }
             }
         ).then(function(response) {
-            // console.log(response);
+            console.log(response);
             self.invoice = response.data.invoice;
-            self.action = response.data.action;
-            $rootScope.loading = false;
-            if (self.action == 'Edit') {
-                if (self.invoice.deleted_at) {
-                    self.switch_value = 'Inactive';
-                } else {
-                    self.switch_value = 'Active';
-                }
-            } else {
-                self.switch_value = 'Active';
-            }
-        });
+            self.transactions = response.data.transactions;
+            console.log(self.invoice);
+            console.log(self.transactions);
 
-        var form_id = '#form';
-        var v = jQuery(form_id).validate({
-            ignore: '',
-            rules: {
-                'name': {
-                    required: true,
-                    minlength: 3,
-                    maxlength: 64,
-                },
-                'description': {
-                    minlength: 3,
-                    maxlength: 255,
-                },
-            },
-            submitHandler: function(form) {
-                let formData = new FormData($(form_id)[0]);
-                $('#submit').button('loading');
-                $.ajax({
-                        url: laravel_routes['saveInvoice'],
-                        method: "POST",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                    })
-                    .done(function(res) {
-                        if (res.success == true) {
-                            custom_noty('success', res.message);
-                            $location.path('/invoice-pkg/invoice/list');
-                            $scope.$apply();
-                        } else {
-                            if (!res.success == true) {
-                                $('#submit').button('reset');
-                                var errors = '';
-                                for (var i in res.errors) {
-                                    errors += '<li>' + res.errors[i] + '</li>';
-                                }
-                                custom_noty('error', errors);
-                            } else {
-                                $('#submit').button('reset');
-                                $location.path('/invoice-pkg/invoice/list');
-                                $scope.$apply();
-                            }
-                        }
-                    })
-                    .fail(function(xhr) {
-                        $('#submit').button('reset');
-                        custom_noty('error', 'Something went wrong at server');
-                    });
-            }
+            /*self.state = response.data.state;
+            self.regions = response.data.regions;
+            self.cities = response.data.cities;
+            self.action = response.data.action;
+            self.theme = response.data.theme;*/
         });
+        /* Tab Funtion */
+        $('.btn-nxt').on("click", function() {
+            $('.editDetails-tabs li.active').next().children('a').trigger("click");
+            tabPaneFooter();
+        });
+        $('.btn-prev').on("click", function() {
+            $('.editDetails-tabs li.active').prev().children('a').trigger("click");
+            tabPaneFooter();
+        });
+        $('.btn-pills').on("click", function() {
+            tabPaneFooter();
+        });
+        $scope.btnNxt = function() {}
+        $scope.prev = function() {}
     }
 });

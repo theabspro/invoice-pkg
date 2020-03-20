@@ -5,15 +5,16 @@
         <div class="page-header-inner">
             <div class="page-header-content-left">
                 <div class="page-header-content button-block">
-                    <a href="#!/invoice-pkg/invoice/list" type="button" class="btn-back btn-img">
-                        <img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" />
+                    <a href="#!/location-pkg/state/list" type="button" class="btn-back btn-img">
+                        <img class="img-responsive my-tooltip" src="./public/theme/img/content/previous.svg" alt="Back" ng-shortcut="'meta+shift+left'" ng-shortcut-click data-title="ctrl+shift+left" />
                     </a>
                 </div><!-- Page Header Content -->
                 <div class="page-header-content title-block">
-                    <h1 class="title"><b>{{$ctrl.action}} Invoice</b></h1>
+                    <h1 class="title">{{$ctrl.action}} State</h1>
                     <p class="subtitle">
-                        <a href="#!/invoice-pkg/invoice/list">
-                            Invoices
+                        Masters /
+                        <a href="#!/location-pkg/state/list">
+                            States
                         </a> /
                         {{$ctrl.action}}
                     </p>
@@ -24,19 +25,16 @@
     <!-- Page Main Content -->
     <div class="page-main-content form-content type2">
         <form id="form" autocomplete="off">
-            <input type="hidden" name="id" value="{{$ctrl.invoice.id}}">
+            <input type="hidden" name="id" value="{{$ctrl.state.id}}">
             <div class="page-tab-form pb-70">
                 <div class="tab-form-wrap">
                     <div class="tab-form-header">
                         <div class="tab-header">
-                            <!-- Filters -->
                             <div class="isotope-filters animated" data-animation="fadeInLeft" data-animation-delay="300">
-                                <ul class="nav nav-pills cndn-tabs">
-                                    <li class="active">
-                                        <a class="filter active" data-target="#general-information" data-toggle="tab" aria-expanded="true">
-                                            General Info
-                                        </a>
-                                    </li>
+                                <ul class="nav nav-pills editDetails-tabs">
+                                    <li class="active"><a data-target="#general-info" role="tab" data-toggle="tab" aria-expanded="true">General Information</a></li>
+                                    <li ng-if="$ctrl.region_permission"><a data-target="#regions" role="tab" data-toggle="tab" aria-expanded="true">Regions</a></li>
+                                    <li ng-if="$ctrl.city_permission"><a data-target="#city" role="tab" data-toggle="tab" aria-expanded="true">Cities</a></li>
                                 </ul>
                             </div><!-- Filters -->
                         </div><!-- Tab Header -->
@@ -44,26 +42,35 @@
                     <div class="tab-form-body">
                         <div class="tab-content">
                             <!-- TAB PANEL -->
-                            <div class="tab-pane fade in active" id="general-information" data-animation="fadeInUp" data-animation-delay="300">
+                            <div class="tab-pane fade in active" id="general-info" data-animation="fadeInUp" data-animation-delay="300">
                                 <div class="tab-pane-wrap">
                                     <div class="row">
                                         <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>
-                                                    Invoice Name
-                                                    <sup class="mandatory">*</sup>
-                                                </label>
-                                                <input type="text" class="form-control required" ng-model="$ctrl.invoice.name" name="name" placeholder="Enter Invoice Name" />
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
+                                            <div class="form-group">
+                                                <label>State Name<span class="mandatory">*</span></label>
+                                                <input type="text" name="name" ng-model='$ctrl.state.name' class="form-control required" placeholder="Enter State Name">
+                                            </div>
+                                        </div>
                                         <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>
-                                                    Description
-                                                </label>
-                                                <textarea class="form-control" rows="3" ng-model="$ctrl.invoice.description" name="description" placeholder="Enter Description"></textarea>
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
+                                            <div class="form-group">
+                                                <label>State Code<span class="mandatory">*</span></label>
+                                                <input type="text" name="code" ng-model='$ctrl.state.code' class="form-control required" placeholder="Enter State Code">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label>Country<span class="mandatory">*</span></label>
+                                                <md-select ng-model="$ctrl.state.country_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Country">
+                                                    <md-select-header class="demo-select-header">
+                                                        <input ng-model="searchTerm" type="search" placeholder="Search for a Country" class="demo-header-searchbox md-text">
+                                                    </md-select-header>
+                                                    <md-optgroup>
+                                                        <md-option ng-value="country.id" ng-repeat="country in $ctrl.country_list | filter:searchTerm">{{country.name}}</md-option>
+                                                    </md-optgroup>
+                                                </md-select>
+                                                <input type="hidden" class="form-control" name="country_id" id="country_id" value="{{$ctrl.state.country_id}}">
+                                            </div>
+                                        </div>
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
                                                 <label>
@@ -81,7 +88,125 @@
                                         <div class="tab-pane-footer">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <button type="submit" id="submit" class="btn btn-primary">
+                                                    <a class="btn btn-secondary btn-nxt my-tooltip" ng-shortcut="'meta+shift+down'" ng-shortcut-click data-title="ctrl+shift+down">
+                                                        Next
+                                                    </a>
+                                                    <button type="submit" class="btn btn-primary submit my-tooltip" ng-shortcut="'meta+shift+s'" ng-shortcut-click data-title="ctrl+shift+s">Submit</button>
+                                                </div>
+                                            </div>
+                                        </div><!-- Tab Footer -->
+                                    </div><!-- Row -->
+                                </div><!-- Tab Pane Wrap -->
+                            </div><!-- Tab Pane -->
+                            <div class="tab-pane fade" id="regions" data-animation="fadeInUp" data-animation-delay="300">
+                                <div class="tab-pane-wrap">
+                                    <div class="row">
+                                        <div class="col-lg-8 col-md-10">
+                                            <div class="table-responsive">
+                                                <table class="table table-form">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="width-280">Region Name </th>
+                                                            <th class="width-120">Region Code</th>
+                                                            <th class="width-230">Active Status</th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr ng-repeat="(index, region) in $ctrl.region_list">
+                                                            <input type="hidden" ng-model="region.id" name="regions[{{index}}][id]" value="{{region.id}}">
+                                                            <td>
+                                                                <input type="text" name="regions[{{index}}][name]" ng-model='region.name' class="form-control type-sm required region_name" placeholder="Enter Region Name">
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" name="regions[{{index}}][code]" ng-model='region.code' class="form-control type-sm required region_code" placeholder="Enter Region Code">
+                                                            </td>
+                                                            <td>
+                                                                <div class="tab-switch">
+                                                                    <md-switch ng-model="region.switch_value" aria-label="Switch {{index}}" ng-true-value="'Inactive'" ng-false-value="'Active'" class="md-warn type-sm">
+                                                                        {{ region.switch_value }}
+                                                                    </md-switch>
+                                                                    <input type="hidden" name="regions[{{index}}][status]" value="{{region.switch_value}}">
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <a href="javascript:;" ng-click="removeRegion(index,region.id)"><img src="./public/themes/{{$ctrl.theme}}/img/content/modal/close-circle-active.svg" class="img-fluid" alt="Delete"></a>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td colspan="3">
+                                                                <button type="button" class="btn btn-primary-light btn-square" ng-click="add_region()">+ Add Region</button>
+                                                            </td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                                <input type="hidden" name="removed_region_id" id="removed_region_id" value="">
+                                            </div><!-- Table Responsive -->
+                                        </div><!-- Column -->
+                                        <div class="tab-pane-footer">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <a class="btn btn-secondary btn-prev my-tooltip" ng-shortcut="'meta+shift+up'" ng-shortcut-click data-title="ctrl+shift+up">Previous</a>
+                                                    <a class="btn btn-secondary btn-nxt my-tooltip" ng-shortcut="'meta+shift+down'" ng-shortcut-click data-title="ctrl+shift+down">
+                                                        Next
+                                                    </a>
+                                                    <button type="submit" class="btn btn-primary submit my-tooltip" ng-shortcut="'meta+shift+s'" ng-shortcut-click data-title="ctrl+shift+s">Submit</button>
+                                                </div>
+                                            </div>
+                                        </div><!-- Tab Footer -->
+                                    </div><!-- Row -->
+                                </div><!-- Tab Pane Wrap -->
+                            </div><!-- Tabe Pane -->
+                            <div class="tab-pane fade" id="city" data-animation="fadeInUp" data-animation-delay="300">
+                                <div class="tab-pane-wrap">
+                                    <div class="row">
+                                        <div class="col-lg-8 col-md-10">
+                                            <div class="table-responsive">
+                                                <table class="table table-form">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="width-280">City Name </th>
+                                                            <th class="width-230">Active Status </th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr ng-repeat="(index, city) in $ctrl.city_list">
+                                                            <input type="hidden" ng-model="city.id" name="cities[{{index}}][id]" value="{{city.id}}">
+                                                            <td>
+                                                                <input type="text" name="cities[{{index}}][name]" ng-model='city.name' class="form-control type-sm required city_name" placeholder="Enter City Name">
+                                                            </td>
+                                                            <td>
+                                                                <div class="tab-switch">
+                                                                    <md-switch ng-model="city.switch_value" aria-label="Switch {{index}}" ng-true-value="'Inactive'" ng-false-value="'Active'" class="md-warn type-sm">
+                                                                        {{ city.switch_value }}
+                                                                    </md-switch>
+                                                                    <input type="hidden" name="cities[{{index}}][status]" value="{{city.switch_value}}">
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <a href="javascript:;" ng-click="removeCity(index,city.id)"><img src="./public/themes/{{$ctrl.theme}}/img/content/modal/close-circle-active.svg" class="img-fluid" alt="Delete"></a>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td colspan="3">
+                                                                <button type="button" class="btn btn-primary-light btn-square" ng-click="add_city()">+ Add city</button>
+                                                            </td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                                <input type="hidden" name="removed_city_id" id="removed_city_id" value="">
+                                            </div><!-- Table Responsive -->
+                                        </div><!-- Column -->
+                                        <div class="tab-pane-footer">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <a class="btn btn-secondary btn-prev my-tooltip" ng-shortcut="'meta+shift+up'" ng-shortcut-click data-title="ctrl+shift+up">Previous</a>
+                                                    <button type="submit" id="submit" class="btn btn-primary my-tooltip" ng-shortcut="'meta+shift+s'" ng-shortcut-click data-title="ctrl+shift+s">
                                                         Submit
                                                     </button>
                                                 </div>

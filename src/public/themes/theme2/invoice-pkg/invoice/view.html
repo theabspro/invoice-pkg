@@ -1,4 +1,4 @@
-<!-- Content Wrap -->
+Content Wrap -->
 <div class="content-wrap cndn-wrap">
     <!-- Page Header -->
     <div class="page-header">
@@ -6,37 +6,34 @@
             <div class="page-header-content-left">
                 <div class="page-header-content button-block">
                     <a href="#!/invoice-pkg/invoice/list" type="button" class="btn-back btn-img">
-                        <img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" />
+                        <img class="img-responsive my-tooltip" src="./public/theme/img/content/previous.svg" alt="Back" ng-shortcut="'meta+shift+left'" ng-shortcut-click data-title="ctrl+shift+left" />
                     </a>
                 </div><!-- Page Header Content -->
                 <div class="page-header-content title-block">
-                    <h1 class="title"><b>{{$ctrl.action}} Invoice</b></h1>
+                    <h1 class="title">View Invoice</h1>
                     <p class="subtitle">
                         <a href="#!/invoice-pkg/invoice/list">
                             Invoices
                         </a> /
-                        {{$ctrl.action}}
+                        View
                     </p>
                 </div><!-- Page Header Content -->
             </div><!-- Page Header Content Left -->
         </div><!-- Page Header Inner -->
     </div><!-- Page Header -->
+    <!-- Content Wrap -->
     <!-- Page Main Content -->
     <div class="page-main-content form-content type2">
         <form id="form" autocomplete="off">
-            <input type="hidden" name="id" value="{{$ctrl.invoice.id}}">
+            <input type="hidden" name="id" value="{{$ctrl.state.id}}">
             <div class="page-tab-form pb-70">
                 <div class="tab-form-wrap">
                     <div class="tab-form-header">
                         <div class="tab-header">
-                            <!-- Filters -->
                             <div class="isotope-filters animated" data-animation="fadeInLeft" data-animation-delay="300">
-                                <ul class="nav nav-pills cndn-tabs">
-                                    <li class="active">
-                                        <a class="filter active" data-target="#general-information" data-toggle="tab" aria-expanded="true">
-                                            General Info
-                                        </a>
-                                    </li>
+                                <ul class="nav nav-pills editDetails-tabs">
+                                    <li class="active"><a data-target="#general-info" role="tab" data-toggle="tab" aria-expanded="true">Basic Details</a></li>
+                                    <li ><a data-target="#regions" role="tab" data-toggle="tab" aria-expanded="true">Transactions</a></li>
                                 </ul>
                             </div><!-- Filters -->
                         </div><!-- Tab Header -->
@@ -44,46 +41,153 @@
                     <div class="tab-form-body">
                         <div class="tab-content">
                             <!-- TAB PANEL -->
-                            <div class="tab-pane fade in active" id="general-information" data-animation="fadeInUp" data-animation-delay="300">
+                            <div class="tab-pane fade in active" id="general-info" data-animation="fadeInUp" data-animation-delay="300">
                                 <div class="tab-pane-wrap">
                                     <div class="row">
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>
-                                                    Invoice Name
-                                                    <sup class="mandatory">*</sup>
-                                                </label>
-                                                <input type="text" class="form-control required" ng-model="$ctrl.invoice.name" name="name" placeholder="Enter Invoice Name" />
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>
-                                                    Description
-                                                </label>
-                                                <textarea class="form-control" rows="3" ng-model="$ctrl.invoice.description" name="description" placeholder="Enter Description"></textarea>
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>
-                                                    Active Status
-                                                    <sup class="mandatory">*</sup>
-                                                </label>
-                                                <div class="tab-switch">
-                                                    <md-switch ng-model="$ctrl.switch_value" aria-label="Switch 1" ng-true-value="'Inactive'" ng-false-value="'Active'" class="md-warn">
-                                                        {{ $ctrl.switch_value }}
-                                                    </md-switch>
-                                                    <input type="hidden" name="status" value="{{$ctrl.switch_value}}">
+                                        <ul class="grid-row">
+                                            <li class="grid-col-3">
+                                                <span class="grid-col-label">Invoice Date</span>
+                                                <span class="grid-col-value">{{$ctrl.invoice.invoice_date}}</span>
+                                            </li>
+                                            <li class="grid-col-3">
+                                                <span class="grid-col-label">Invoice Number</span>
+                                                <span class="grid-col-value">{{$ctrl.invoice.invoice_number}}</span>
+                                            </li>
+                                            <li class="grid-col-3">
+                                                <span class="grid-col-label">Invoice of</span>
+                                                <span class="grid-col-value"></span>
+                                            </li>
+                                            <li class="grid-col-3">
+                                                <span class="grid-col-label">Account Code</span>
+                                                <span class="grid-col-value"></span>
+                                            </li>
+                                            <li class="grid-col-3">
+                                                <span class="grid-col-label">Account Number</span>
+                                                <span class="grid-col-value">{{$ctrl.invoice.country.name}}</span>
+                                            </li>
+                                            <li class="grid-col-3">
+                                                <span class="grid-col-label">Invoice Amount</span>
+                                                <span class="grid-col-value">{{$ctrl.invoice.invoice_amount}}</span>
+                                            </li>
+                                            <li class="grid-col-3">
+                                                <span class="grid-col-label">Received Amount</span>
+                                                <span class="grid-col-value">{{$ctrl.invoice.received_amount}}</span>
+                                            </li>
+                                            <li class="grid-col-3">
+                                                <span class="grid-col-label">Balance Amount</span>
+                                                <span class="grid-col-value">{{$ctrl.invoice.balance_amount}}</span>
+                                            </li>
+                                            <li class="grid-col-3">
+                                                <span class="grid-col-label">Description</span>
+                                                <span class="grid-col-value">{{$ctrl.invoice.remarks}}</span>
+                                            </li>
+                                            <li class="grid-col-3">
+                                                <span class="grid-col-label">Status</span>
+                                                <span class="grid-col-value">{{$ctrl.invoice.status_name}}</span>
+                                            </li>
+                                           
+                                        </ul>
+                                        <div class=" tab-pane-footer">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <a class="btn btn-secondary btn-nxt">
+                                                        Next
+                                                    </a>
                                                 </div>
-                                            </div><!-- Form Group -->
+                                            </div>
+                                        </div><!-- Tab Footer -->
+                                    </div><!-- Row -->
+                                </div><!-- Tab Pane Wrap -->
+                            </div><!-- Tab Pane -->
+                            <div class="tab-pane fade" id="regions" data-animation="fadeInUp" data-animation-delay="300">
+                                <div class="tab-pane-wrap">
+                                    <div class="row">
+                                        <div class="col-lg-9 col-md-8">
+                                            <div class="table-responsive">
+                                                <table class="table table-form">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Date</th>
+                                                            <!-- <th>Type</th> -->
+                                                            <th>Amount</th>
+                                                            <th>Balance</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr ng-repeat="(index, transaction) in $ctrl.transactions">
+                                                            <td>
+                                                                <span class="info">{{transaction.invoice_date}}</span>
+                                                            </td>
+                                                            <!-- <td>
+                                                                <span class="info">{{transaction.type_name}}</span>
+                                                            </td> -->
+                                                             <td>
+                                                                <span class="info">{{transaction.received_amount}}</span>
+                                                            </td>
+                                                             <td>
+                                                                <span class="info">{{transaction.balance_amount}}</span>
+                                                            </td>
+                                                             <td>
+                                                                <span class="info">{{transaction.status_name}}</span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr ng-if="$ctrl.transactions.length == 0">
+                                                            <td colspan="4" style="text-align: center;">
+                                                                <span class="info">No data available in table</span>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div><!-- Table Responsive -->
+                                        </div><!-- Column -->
+                                        <div class=" tab-pane-footer">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <a class="btn btn-secondary btn-prev my-tooltip"  ng-shortcut="'meta+shift+up'" ng-shortcut-click data-title="ctrl+shift+up">Previous</a>
+                                                    <a class="btn btn-secondary btn-nxt my-tooltip" ng-shortcut="'meta+shift+down'" ng-shortcut-click data-title="ctrl+shift+down">
+                                                        Next
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div><!-- Tab Footer -->
+                                    </div><!-- Row -->
+                                </div><!-- Tab Pane Wrap -->
+                            </div><!-- Tab Pane -->
+                            <div class="tab-pane fade" id="city" data-animation="fadeInUp" data-animation-delay="300">
+                                <div class="tab-pane-wrap">
+                                    <div class="row">
+                                        <div class="col-lg-9 col-md-8">
+                                            <div class="table-responsive">
+                                                <table class="table table-form">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>City Name</th>
+                                                            <th>Active Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr ng-repeat="(index, city) in $ctrl.cities">
+                                                            <td>
+                                                                <span class="info">{{city.name}}</span>
+                                                            </td>
+                                                            <td>
+                                                                <span class="info  {{state.deleted_at ==NULL ? 'text-green' : 'text-red'}}">{{city.deleted_at ? 'Inactive' : 'Active'}}</span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr ng-if="$ctrl.cities.length == 0">
+                                                            <td colspan="2" style="text-align: center;">
+                                                                <span class="info">No data available in table</span>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div><!-- Table Responsive -->
                                         </div><!-- Column -->
                                         <div class="tab-pane-footer">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <button type="submit" id="submit" class="btn btn-primary">
-                                                        Submit
-                                                    </button>
+                                                    <a class="btn btn-secondary btn-prev my-tooltip"  ng-shortcut="'meta+shift+up'" ng-shortcut-click data-title="ctrl+shift+up">Previous</a>
                                                 </div>
                                             </div>
                                         </div><!-- Tab Footer -->
@@ -96,4 +200,4 @@
             </div><!-- Page Form -->
         </form>
     </div><!-- Page Main Content -->
-</div><!-- Content Wrap -->
+</div><!-- Content Wrap

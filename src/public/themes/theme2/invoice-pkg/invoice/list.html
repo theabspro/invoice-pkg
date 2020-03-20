@@ -1,12 +1,13 @@
-<div class="content-wrap cndn-wrap">
+<div class="content-wrap bl-fixed">
     <div class="page-header">
         <div class="page-header-inner">
             <div class="page-header-content-left">
                 <div class="page-header-content title-block">
                     <h1 class="title type-2">Invoices (<span id="table_info"></span>)</h1>
+                    <!-- <p class="subtitle">Masters / JV Masters / JV Types</p> -->
                 </div><!-- Page Header Content -->
                 <div class="page-header-content button-block">
-                    <button class="btn btn-bordered" data-toggle="modal" data-target="#invoice-filter-modal"><i class="icon ion-md-funnel"></i>Filter</button>
+                    <button class="btn btn-bordered my-tooltip" data-toggle="modal" data-target="#modal-state-filter" ng-shortcut="'meta+shift+f'" ng-shortcut-click data-title="ctrl+shift+f"><i class="icon ion-md-funnel"></i>Filter</button>
                 </div><!-- Page Header Content -->
             </div><!-- Page Header Content Left -->
             <div class="page-header-content-right">
@@ -18,7 +19,7 @@
                 </div><!-- Page Header Content -->
                 <div class="page-header-content reset-block">
                     <div class="reset-wrap">
-                        <button class="btn-reset reset-tooltip refresh_table">
+                        <button class="btn-reset reset-tooltip refresh_table my-tooltip" ng-shortcut="'meta+shift+r'" ng-shortcut-click data-title="ctrl+shift+r">
                             <img class="img-responsive" src="./public/theme/img/content/reset.svg" alt="Reset" />
                         </button>
                     </div>
@@ -26,13 +27,13 @@
                 <div class="page-header-content search-block">
                     <div class="search_filter">
                         <label>
-                            <input type="search" id="search_invoice" class="form-control" placeholder="Search" />
-                            <button class="btn-clear" ng-click="clear_search()">Clear</button>
+                            <input type="search" id="search_state" class="form-control" placeholder="Search" autofocus />
+                            <button class="btn-clear my-tooltip" ng-click="clear_search()" ng-shortcut="'meta+shift+c'" ng-shortcut-click data-title="ctrl+shift+c">Clear</button>
                         </label>
                     </div><!-- Search Filter -->
                 </div><!-- Page Header Content -->
                 <div class="page-header-content button-block" ng-show="$ctrl.add_permission">
-                    <a href="#!/invoice-pkg/invoice/add" class="btn btn-primary">Add New</a>
+                    <a href="#!/location-pkg/state/add" class="btn btn-primary my-tooltip" ng-shortcut="'meta+shift+n'" ng-shortcut-click data-title="ctrl+shift+n">Add New</a>
                 </div><!-- Page Header Content -->
             </div><!-- Page Header Content Right -->
         </div><!-- Page Header Inner -->
@@ -41,62 +42,100 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <table class="table" id="invoices_list" style="width: 100% !important;">
+                    <table class="table " id="invoice_list" style="width: 100% !important;">
                         <thead>
                             <tr>
-                                <th class="action">Action</th>
-                                <th>Invoice Name</th>
+                                <th class="actions">Actions</th>
+                                <th>Invoice Date</th>
+                                <th>Invoice Number</th>
+                                <!-- <th>Invoice of</th> -->
+                                <!-- <th>Account Code</th>
+                                <th>Account Number</th> -->
+                                <th>Invoice Amount</th>
+                                <th>Received Amount</th>
+                                <th>Balance Amount</th>
                                 <th>Description</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
-                    </table>
+                    </table><!-- Table -->
                 </div><!-- Column -->
             </div><!-- Row -->
         </div><!-- Container -->
     </div><!-- Page Main Content -->
 </div><!-- Content Wrap -->
-<!-- Filter Modal -->
-<div class="modal fade filter" id="invoice-filter-modal" role="dialog" aria-labelledby="myModalLabel">
+<!-- Modal Filter Start -->
+<div class="modal fade filter" id="modal-state-filter" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close ripple" data-dismiss="modal" aria-label="Close"><i class="icon ion-md-close"></i></button>
-                <h5 class="modal-title" id="myModalLabel">Invoice Filter</h5>
+                <h5 class="modal-title" id="myModalLabel">State Filter</h5>
             </div><!-- Modal Header -->
             <div class="modal-body">
-                <div class="modal-form">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Invoice Name</label>
-                                <input type="text" class="form-control" id="invoice_name" name="invoice_name" placeholder="Enter Invoice Name" autocomplete="off">
-                            </div><!-- Field -->
-                        </div><!-- Column -->
-                        <div class="col-md-6">
-                            <div class="input-text form-group">
-                                <label>Status</label>
-                                <md-select ng-model="$ctrl.invoice.status" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedStatus($ctrl.invoice.status)" placeholder="Select Status">
-                                    <md-select-header class="demo-select-header">
-                                        <input ng-model="searchTerm" type="search" placeholder="Search for a Status" class="demo-header-searchbox md-text">
-                                    </md-select-header>
-                                    <md-optgroup>
-                                        <md-option ng-value="status.id" ng-repeat="status in $ctrl.status | filter:searchTerm">{{status.name}}</md-option>
-                                    </md-optgroup>
-                                </md-select>
-                                <input type="hidden" class="form-control" name="status" id="status" value="">
-                            </div><!-- Field -->
-                        </div><!-- Column -->
-                        <div class="col-md-6">
-                            <button type="button" class="btn btn-rose" ng-click="reset_filter();$ctrl.invoice.status=''">Reset Filter</button>
-                        </div>
-                    </div><!-- Row -->
-                </div><!-- Modal Form -->
+                <div class="row modal-row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Date Range Picker <sup class="mandatory">*</sup></label>
+                            <div class="input-group date">
+                                <input class="form-control daterange align-left" placeholder="Select a Date Range">
+                                <span class="input-group-addon">
+                                    <img class="img-responsive" src="./public/theme/img/content/calender-gray-icon.svg" alt="Calendar Image" />
+                                </span>
+                            </div><!-- Input Group -->
+                        </div><!-- Feild -->
+                    </div><!-- Column -->
+                    <div class="col-md-6">
+                        <div class="input-text form-group">
+                            <label>Invoice Number</label>
+                            <input type="text" class="form-control" name="name" id="name" placeholder="Enter State Name" aria-invalid="false" autocomplete="off"  ng-model="$ctrl.filter_state_name">
+                        </div><!-- Field -->
+                    </div><!-- Column -->
+                    <div class="col-md-6">
+                        <div class="input-text form-group">
+                            <label>State Code</label>
+                            <input type="text" class="form-control" name="code" id="code" placeholder="Enter State Code" aria-invalid="false" autocomplete="off"  ng-model="$ctrl.filter_state_code">
+                        </div><!-- Field -->
+                    </div><!-- Column -->
+                    <div class="col-md-6">
+                        <div class="input-text form-group">
+                            <label>Country</label>
+                            <md-select ng-model="$ctrl.filter_state_country" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedCountry($ctrl.filter_state_country)" placeholder="Select ">
+                                <md-select-header class="demo-select-header">
+                                    <input ng-model="searchTerm" type="search" placeholder="Search for a Country" class="demo-header-searchbox md-text">
+                                </md-select-header>
+                                <md-optgroup>
+                                    <md-option ng-value="country.id" ng-repeat="country in $ctrl.country_list | filter:searchTerm">{{country.name}}</md-option>
+                                </md-optgroup>
+                            </md-select>
+                            <input type="hidden" ng-model="$ctrl.filter_state_country" class="form-control" name="country_id" id="filter_country_id" value="">
+                        </div><!-- Field -->
+                    </div><!-- Column -->
+                    <div class="col-md-6">
+                        <div class="input-text form-group">
+                            <label>Status</label>
+                            <md-select ng-model="$ctrl.filter_state_status" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedStatus($ctrl.filter_state_status)" placeholder="Select Status">
+                                <md-select-header class="demo-select-header">
+                                    <input ng-model="searchTerm1" type="search" placeholder="Search for a Status" class="demo-header-searchbox md-text">
+                                </md-select-header>
+                                <md-optgroup>
+                                    <md-option ng-value="status.id" ng-repeat="status in $ctrl.status | filter:searchTerm1">{{status.name}}</md-option>
+                                </md-optgroup>
+                            </md-select>
+                            <input type="hidden" ng-model="$ctrl.filter_state_status" class="form-control" name="status" id="status" value="">
+                        </div><!-- Field -->
+                    </div><!-- Column -->
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-rose my-tooltip" ng-click="reset_filter();$ctrl.filter_state_country='';$ctrl.filter_state_status=''" ng-shortcut="'meta+shift+t'" ng-shortcut-click data-title="ctrl+shift+t">Reset Filter</button>
+                    </div>
+                </div><!-- Row -->
             </div><!-- Modal Body -->
         </div><!-- Modal Content -->
     </div><!-- Modal Dialog -->
 </div><!-- Modal -->
+<!--Modal Filter End-->
 <!-- Modal -->
-<div class="modal fade alert-modal failure" id="invoice-delete-modal" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade alert-modal failure" id="invoices-delete-modal" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -105,11 +144,10 @@
             <div class="modal-body">
                 <h5>Delete</h5>
                 <p>You can’t retrive the data again, Are you sure you want to delete? </p>
-                <input type="hidden" name="invoice_id" id="invoice_id" value="">
+                <input type="hidden" name="state_id" id="state_id" value="">
                 <button class="btn btn-grey" data-dismiss="modal" aria-label="Close">Cancel</button>
                 <button class="btn btn-rose" ng-click="deleteConfirm()" type="button" data-dismiss="modal" aria-label="Close">Yes</button>
             </div>
-        </div>
-    </div>
-</div>
-<!-- Modal -->
+        </div><!-- Modal Content -->
+    </div><!-- Modal Dialog -->
+</div><!-- Modal Content -->

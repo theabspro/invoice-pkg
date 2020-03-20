@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Invoice extends Model {
 	use SeederTrait;
-	use SoftDeletes;
+	// use SoftDeletes;
 	protected $table = 'invoices';
 	public $timestamps = true;
 	protected $fillable = [
