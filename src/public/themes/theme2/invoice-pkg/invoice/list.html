@@ -49,8 +49,8 @@
                                 <th>Invoice Date</th>
                                 <th>Invoice Number</th>
                                 <!-- <th>Invoice of</th> -->
-                                <!-- <th>Account Code</th>
-                                <th>Account Number</th> -->
+                                <th>Account Code</th>
+                                <th>Account Name</th>
                                 <th>Invoice Amount</th>
                                 <th>Received Amount</th>
                                 <th>Balance Amount</th>
@@ -76,13 +76,11 @@
                 <div class="row modal-row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Date Range Picker <sup class="mandatory">*</sup></label>
-                            <div class="input-group date">
-                                <input class="form-control daterange align-left" placeholder="Select a Date Range">
-                                <span class="input-group-addon">
-                                    <img class="img-responsive" src="./public/theme/img/content/calender-gray-icon.svg" alt="Calendar Image" />
-                                </span>
-                            </div><!-- Input Group -->
+                            <div class="input-text form-group mb-0">
+                                <label>Date</label>
+                                <input date-range-picker id="daterange1" name="daterange" class="form-control date-picker" type="text" ng-model="$ctrl.daterange1" value="{{$ctrl.daterange1}}" />
+                                <!-- Input Group -->
+                            </div>
                         </div><!-- Feild -->
                     </div><!-- Column -->
                     <div class="col-md-6">

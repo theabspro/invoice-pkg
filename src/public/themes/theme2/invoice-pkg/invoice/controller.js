@@ -5,6 +5,17 @@ app.component('invoiceList', {
         var self = this;
         self.theme = admin_theme;
         $('#search_state').focus();
+        $('.docDatePicker').bootstrapDP({
+            endDate: 'today',
+            todayHighlight: true
+        });
+
+        $('#reference_date').datepicker({
+            dateFormat: 'dd-mm-yy',
+            maxDate: '0',
+            todayHighlight: true,
+            autoclose: true
+        });
 
         /*$http.get(
                 laravel_routes['getInvoiceSessionData']
@@ -70,8 +81,8 @@ app.component('invoiceList', {
                 { data: 'invoice_date', searchable: false},
                 { data: 'invoice_number', name: 'invoices.invoice_number' },
                // { data: 'invoices_of_name', name: 'invoices.invoices_of_name' },
-                //{ data: 'account_code', name: 'regions', searchable: false },
-                //{ data: 'account_code', name: 'regions', searchable: false },
+                { data: 'account_code', name: 'customers.code', searchable: false },
+                { data: 'account_namee', name: 'customers.name', searchable: false },
                 { data: 'invoice_amount',  searchable: false },
                 { data: 'received_amount',  searchable: false },
                 { data: 'balance_amount',  searchable: false },

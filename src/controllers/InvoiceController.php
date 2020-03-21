@@ -33,6 +33,8 @@ class InvoiceController extends Controller {
 				//'invoice_ofs.name as invoice_of_name',
 				//'invoices.invoice_of_id',
 				'invoices.invoice_number',
+				'customers.code as account_code',
+				'customers.name as account_name',
 				'invoices.id as id',
 				'invoices.remarks as description',
 				DB::raw('format(invoices.invoice_amount,0,"en_IN") as invoice_amount'),
@@ -43,6 +45,7 @@ class InvoiceController extends Controller {
 			)
 			//->leftJoin('configs as invoice_ofs','invoices.invoice_of_id','=','invoice_ofs.id')
 			->leftJoin('configs','invoices.status_id','=','configs.id')
+			->leftJoin('customers','invoices.customer_id','=','customers.id')
 			->where('invoices.company_id', /*Auth::user()->company_id*/2)
 			/*->where(function ($query) use ($request) {
 				if (!empty($request->name)) {
