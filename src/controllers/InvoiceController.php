@@ -10,6 +10,8 @@ use Entrust;
 use Illuminate\Http\Request;
 use Validator;
 use Yajra\Datatables\Datatables;
+use Session;
+use App\Config;
 
 class InvoiceController extends Controller {
 
@@ -17,17 +19,33 @@ class InvoiceController extends Controller {
 		$this->data['theme'] = config('custom.admin_theme');
 	}
 
-	/*public function getInvoiceSessionData(){
-		$this->data['search_state'] = Session::get('search_state');
-		$this->data['filter_state_code'] = Session::get('filter_state_code');
-		$this->data['filter_state_name'] = Session::get('filter_state_name');
-		$this->data['filter_state_country'] = Session::get('filter_state_country');
-		$this->data['filter_state_status'] = Session::get('filter_state_status');
+	public function getInvoiceSessionData(){
+		$this->data['status'] = Config::select('id','name')->get();
+		$this->data['search_invoice'] = Session::get('search_invoice');
+		$this->data['account_name'] = Session::get('account_name');
+		$this->data['account_code'] = Session::get('account_code');
+		$this->data['invoice_date'] = Session::get('invoice_date');
+		$this->data['invoice_number'] = Session::get('invoice_number');
+		$this->data['config_status'] = Session::get('config_status');
 		$this->data['success'] = true;
 		return response()->json($this->data);
-	}*/
+	}
 
 	public function getInvoiceList(Request $request) {
+		Session::put('search_invoice',$request->search['value']);
+		Session::put('account_name',$request->account_name);
+		Session::put('account_code',$request->account_code);
+		Session::put('invoice_date',$request->invoice_date);
+		Session::put('invoice_number',$request->invoice_number);
+		Session::put('config_status',$request->config_status);
+		$start_date = '';
+		$end_date = '';
+		if(!empty($request->invoice_date)){
+			$date_range = explode(' - ',$request->invoice_date);
+			$start_date = $date_range[0];
+			$end_date = $date_range[1];
+		}
+		
 		$invoices = Invoice::select(
 				DB::raw('DATE_FORMAT(invoices.invoice_date,"%d-%m-%Y") as invoice_date'),
 				//'invoice_ofs.name as invoice_of_name',
@@ -47,17 +65,32 @@ class InvoiceController extends Controller {
 			->leftJoin('configs','invoices.status_id','=','configs.id')
 			->leftJoin('customers','invoices.customer_id','=','customers.id')
 			->where('invoices.company_id', /*Auth::user()->company_id*/2)
-			/*->where(function ($query) use ($request) {
-				if (!empty($request->name)) {
-					$query->where('ledgers.name', 'LIKE', '%' . $request->name . '%');
+			->where(function ($query) use ($request) {
+				if (!empty($request->account_code)) {
+					$query->where('customers.code', 'LIKE',$request->account_code);
 				}
 			})
 			->where(function ($query) use ($request) {
-				if (!empty($request->code)) {
-					$query->where('ledgers.code', 'LIKE', '%' . $request->code . '%');
+				if (!empty($request->account_name)) {
+					$query->where('customers.name', 'LIKE',$request->account_name);
 				}
 			})
-			*/
+			->where(function ($query) use ($request) {
+				if (!empty($request->invoice_number)) {
+					$query->where('invoices.invoice_number', 'LIKE',$request->invoice_number);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->config_status)) {
+					$query->where('configs.id',$request->config_status);
+				}
+			})
+			->where(function ($query) use ($request,$start_date,$end_date){
+				if (!empty($request->invoice_date) && ($start_date && $end_date)) {
+					$query->where('invoices.invoice_date','>=',$start_date)->where('invoices.invoice_date','<=',$end_date);
+				}
+			})
+			
 		;
 		return Datatables::of($invoices)
 			->addColumn('action', function ($invoices) {
@@ -95,10 +128,13 @@ class InvoiceController extends Controller {
 				DB::raw('format(invoices.received_amount,0,"en_IN") as received_amount'),
 				DB::raw('format((invoices.invoice_amount - invoices.received_amount),0,"en_IN") as balance_amount'),
 				'configs.name as status_name',
+				'customers.code as account_code',
+				'customers.name as account_name',
 				'invoices.invoice_number'
 			)
 			//->leftJoin('configs as invoice_ofs','invoices.invoice_of_id','=','invoice_ofs.id')
 			->leftJoin('configs','invoices.status_id','=','configs.id')
+			->leftJoin('customers','invoices.customer_id','=','customers.id')
 			->where('invoices.company_id', /*Auth::user()->company_id*/2)
 			->where('invoices.id',$request->id)
 			->first();
@@ -127,8 +163,9 @@ class InvoiceController extends Controller {
 	public function deleteInvoice(Request $request) {
 		DB::beginTransaction();
 		try {
-			$ledger = Invoice::where('id', $request->id)->forceDelete();
-			if ($ledger) {
+			$invoice = Invoice::where('id', $request->id)->forceDelete();
+			$invoice = DB::table('invoice_details')->where('invoice_id', $request->id)->forceDelete();
+			if ($invoice) {
 				$activity = new ActivityLog;
 				$activity->date_time = Carbon::now();
 				$activity->user_id = Auth::user()->id;

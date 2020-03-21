@@ -4,7 +4,7 @@ app.component('invoiceList', {
         $scope.loading = true;
         var self = this;
         self.theme = admin_theme;
-        $('#search_state').focus();
+        $('#search_invoice').focus();
         $('.docDatePicker').bootstrapDP({
             endDate: 'today',
             todayHighlight: true
@@ -17,18 +17,21 @@ app.component('invoiceList', {
             autoclose: true
         });
 
-        /*$http.get(
+        $http.get(
                 laravel_routes['getInvoiceSessionData']
             ).then(function(response) {
                 console.log(response.data);
                 if(response.data.success){
-                    self.filter_state_code = response.data.filter_state_code;
-                    self.filter_state_country = response.data.filter_state_country;
-                    self.filter_state_name = response.data.filter_state_name;
-                    self.filter_state_status = response.data.filter_state_status;
-                    $('#search_state').val(response.data.search_state);
+                    self.status = response.data.status;
+                    console.log(self.status);
+                    self.account_code = response.data.account_code;
+                    self.account_name = response.data.account_name;
+                    self.config_status = response.data.config_status;
+                    self.invoice_date = response.data.invoice_date;
+                    $('#daterange1').val(response.data.invoice_date);
+                    $('#search_invoice').val(response.data.search_invoice);
                 }
-            });*/
+            });
         self.hasPermission = HelperService.hasPermission;
         /*if (!self.hasPermission('invoices')) {
             window.location = "#!/page-permission-denied";
@@ -56,7 +59,7 @@ app.component('invoiceList', {
             stateLoadCallback: function(settings) {
                 var state_save_val = JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
                 if (state_save_val) {
-                    $('#search_state').val(state_save_val.search.search);
+                    $('#search_invoice').val(state_save_val.search.search);
                 }
                 return JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
             },
@@ -70,10 +73,11 @@ app.component('invoiceList', {
                 type: "GET",
                 dataType: "json",
                 data: function(d) {
-                    d.state_code = self.filter_state_code;
-                    d.state_name = self.filter_state_name;
-                    d.status =self.filter_state_status;
-                    d.filter_country_id = self.filter_state_country;
+                    d.account_name = self.account_name;
+                    d.account_code = self.account_code;
+                    d.invoice_number = self.invoice_number;
+                    d.invoice_date = $('#daterange1').val();
+                    d.config_status = self.config_status;
                 },
             },
             columns: [
@@ -82,7 +86,7 @@ app.component('invoiceList', {
                 { data: 'invoice_number', name: 'invoices.invoice_number' },
                // { data: 'invoices_of_name', name: 'invoices.invoices_of_name' },
                 { data: 'account_code', name: 'customers.code', searchable: false },
-                { data: 'account_namee', name: 'customers.name', searchable: false },
+                { data: 'account_name', name: 'customers.name', searchable: false },
                 { data: 'invoice_amount',  searchable: false },
                 { data: 'received_amount',  searchable: false },
                 { data: 'balance_amount',  searchable: false },
@@ -98,18 +102,18 @@ app.component('invoiceList', {
             }
         });
         $('.dataTables_length select').select2();
-
+        
         $('.refresh_table').on("click", function() {
-            $('#state_list').DataTable().ajax.reload();
+            $('#invoice_list').DataTable().ajax.reload();
         });
 
         $scope.clear_search = function() {
-            $('#search_state').val('');
-            $('#state_list').DataTable().search('').draw();
+            $('#search_invoice').val('');
+            $('#invoice_list').DataTable().search('').draw();
         }
 
-        var dataTables = $('#state_list').dataTable();
-        $("#search_state").keyup(function() {
+        var dataTables = $('#invoice_list').dataTable();
+        $("#search_invoice").keyup(function() {
             dataTables.fnFilter(this.value);
         });
 
@@ -138,19 +142,6 @@ app.component('invoiceList', {
                 }
             });
         }
-
-        //FOR FILTER
-        $http.get(
-            laravel_routes['getInvoiceFilter']
-        ).then(function(response) {
-            // console.log(response);
-            self.country_list = response.data.country_list;
-        });
-        self.status = [
-            { id: '', name: 'Select Status' },
-            { id: '1', name: 'Active' },
-            { id: '0', name: 'Inactive' },
-        ];
         $element.find('input').on('keydown', function(ev) {
             ev.stopPropagation();
         });
@@ -165,31 +156,19 @@ app.component('invoiceList', {
             }
         });
 
-        var datatables = $('#state_list').dataTable();
-        $('#name').on('keyup', function() {
-            datatables.fnFilter();
-        });
-        $('#code').on('keyup', function() {
-            datatables.fnFilter();
-        });
-        $scope.onSelectedStatus = function(val) {
-            $("#status").val(val);
-            self.filter_state_status = val;
-            datatables.fnFilter();
-        }
-        $scope.onSelectedCountry = function(val) {
-            self.filter_state_country  = val;
-            $("#filter_country_id").val(val);
-            datatables.fnFilter();
-        }
+        var datatables = $('#invoice_list').dataTable();
         $scope.reset_filter = function() {
-            self.filter_state_code = '';
-            self.filter_state_country  = '';
-            self.filter_state_name = '';
-            filter_state_status = '';
+            self.account_code = '';
+            self.account_name  = '';
+            self.invoice_number = '';
+            self.config_status = '';
+            $('#daterange1').val(null);
             datatables.fnFilter();
         }
+        $scope.loadDT = function (){
+            datatables.fnFilter();
 
+        }
         $rootScope.loading = false;
         }, 2500);
     }

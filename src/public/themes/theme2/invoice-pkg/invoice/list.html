@@ -70,49 +70,39 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close ripple" data-dismiss="modal" aria-label="Close"><i class="icon ion-md-close"></i></button>
-                <h5 class="modal-title" id="myModalLabel">State Filter</h5>
+                <h5 class="modal-title" id="myModalLabel">Invoice Filter</h5>
             </div><!-- Modal Header -->
             <div class="modal-body">
                 <div class="row modal-row">
                     <div class="col-md-6">
-                        <div class="form-group">
                             <div class="input-text form-group mb-0">
-                                <label>Date</label>
-                                <input date-range-picker id="daterange1" name="daterange" class="form-control date-picker" type="text" ng-model="$ctrl.daterange1" value="{{$ctrl.daterange1}}" />
+                                <label>Invoice Date</label>
+                                <input date-range-picker id="daterange1" name="daterange" class="form-control date-picker" type="text" ng-model="$ctrl.daterange1" value="{{$ctrl.daterange1}}" placeholder="Select Invoice Date"  />
                                 <!-- Input Group -->
                             </div>
-                        </div><!-- Feild -->
-                    </div><!-- Column -->
+                        </div><!-- Column -->
                     <div class="col-md-6">
                         <div class="input-text form-group">
                             <label>Invoice Number</label>
-                            <input type="text" class="form-control" name="name" id="name" placeholder="Enter State Name" aria-invalid="false" autocomplete="off"  ng-model="$ctrl.filter_state_name">
+                            <input type="text" class="form-control" name="name" ng-keyup="loadDT()" placeholder="Enter Invoice Number" aria-invalid="false" autocomplete="off"  ng-model="$ctrl.invoice_number">
                         </div><!-- Field -->
                     </div><!-- Column -->
                     <div class="col-md-6">
                         <div class="input-text form-group">
-                            <label>State Code</label>
-                            <input type="text" class="form-control" name="code" id="code" placeholder="Enter State Code" aria-invalid="false" autocomplete="off"  ng-model="$ctrl.filter_state_code">
+                            <label>Account Code</label>
+                            <input type="text" class="form-control" ng-keyup="loadDT()" name="account_code" id="account_code" placeholder="Enter Account Code" aria-invalid="false" autocomplete="off"  ng-model="$ctrl.account_code">
                         </div><!-- Field -->
                     </div><!-- Column -->
                     <div class="col-md-6">
                         <div class="input-text form-group">
-                            <label>Country</label>
-                            <md-select ng-model="$ctrl.filter_state_country" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedCountry($ctrl.filter_state_country)" placeholder="Select ">
-                                <md-select-header class="demo-select-header">
-                                    <input ng-model="searchTerm" type="search" placeholder="Search for a Country" class="demo-header-searchbox md-text">
-                                </md-select-header>
-                                <md-optgroup>
-                                    <md-option ng-value="country.id" ng-repeat="country in $ctrl.country_list | filter:searchTerm">{{country.name}}</md-option>
-                                </md-optgroup>
-                            </md-select>
-                            <input type="hidden" ng-model="$ctrl.filter_state_country" class="form-control" name="country_id" id="filter_country_id" value="">
+                            <label>Account Name</label>
+                            <input type="text" class="form-control" ng-keyup="loadDT()" name="name" id="account_name" placeholder="Enter Account Name" aria-invalid="false" autocomplete="off"  ng-model="$ctrl.account_name">
                         </div><!-- Field -->
                     </div><!-- Column -->
                     <div class="col-md-6">
                         <div class="input-text form-group">
                             <label>Status</label>
-                            <md-select ng-model="$ctrl.filter_state_status" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedStatus($ctrl.filter_state_status)" placeholder="Select Status">
+                            <md-select ng-model="$ctrl.config_status" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedStatus($ctrl.config_status)" placeholder="Select Status"  ng-change="loadDT()">
                                 <md-select-header class="demo-select-header">
                                     <input ng-model="searchTerm1" type="search" placeholder="Search for a Status" class="demo-header-searchbox md-text">
                                 </md-select-header>
@@ -120,7 +110,7 @@
                                     <md-option ng-value="status.id" ng-repeat="status in $ctrl.status | filter:searchTerm1">{{status.name}}</md-option>
                                 </md-optgroup>
                             </md-select>
-                            <input type="hidden" ng-model="$ctrl.filter_state_status" class="form-control" name="status" id="status" value="">
+                            <input type="hidden" ng-model="$ctrl.config_status" class="form-control" name="status" id="status" value="">
                         </div><!-- Field -->
                     </div><!-- Column -->
                     <div class="col-md-12">
