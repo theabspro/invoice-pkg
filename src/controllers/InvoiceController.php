@@ -65,7 +65,7 @@ class InvoiceController extends Controller {
 			//->leftJoin('configs as invoice_ofs','invoices.invoice_of_id','=','invoice_ofs.id')
 			->leftJoin('configs','invoices.status_id','=','configs.id')
 			->leftJoin('customers','invoices.customer_id','=','customers.id')
-			->where('invoices.company_id', /*Auth::user()->company_id*/2)
+			->where('invoices.company_id', Auth::user()->company_id)
 			->where(function ($query) use ($request) {
 				if (!empty($request->account_code)) {
 					$query->where('customers.code', 'LIKE',$request->account_code);
