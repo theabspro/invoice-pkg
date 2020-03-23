@@ -4,26 +4,18 @@ app.component('invoiceList', {
         $scope.loading = true;
         var self = this;
         self.theme = admin_theme;
+        //  if (!self.hasPermission('invoices')) {
+        //     window.location = "#!/page-permission-denied";
+        //     return false;
+        // }
         $('#search_invoice').focus();
-        $('.docDatePicker').bootstrapDP({
-            endDate: 'today',
-            todayHighlight: true
-        });
-
-        $('#reference_date').datepicker({
-            dateFormat: 'dd-mm-yy',
-            maxDate: '0',
-            todayHighlight: true,
-            autoclose: true
-        });
+        
 
         $http.get(
                 laravel_routes['getInvoiceSessionData']
             ).then(function(response) {
-                console.log(response.data);
                 if(response.data.success){
                     self.status = response.data.status;
-                    console.log(self.status);
                     self.account_code = response.data.account_code;
                     self.account_name = response.data.account_name;
                     self.config_status = response.data.config_status;
@@ -37,6 +29,18 @@ app.component('invoiceList', {
             window.location = "#!/page-permission-denied";
             return false;
         }*/
+
+        $('.docDatePicker').bootstrapDP({
+            endDate: 'today',
+            todayHighlight: true
+        });
+
+        $('#reference_date').datepicker({
+            dateFormat: 'dd-mm-yy',
+            maxDate: '0',
+            todayHighlight: true,
+            autoclose: true
+        });
         var table_scroll;
         table_scroll = $('.page-main-content.list-page-content').height() - 37;
         setTimeout(function(){
@@ -110,11 +114,15 @@ app.component('invoiceList', {
         $scope.clear_search = function() {
             $('#search_invoice').val('');
             $('#invoice_list').DataTable().search('').draw();
+            $('#search_invoice').focus();
+
         }
 
         var dataTables = $('#invoice_list').dataTable();
         $("#search_invoice").keyup(function() {
             dataTables.fnFilter(this.value);
+        $('#search_invoice').focus();
+
         });
 
         //FOCUS ON SEARCH FIELD
@@ -123,13 +131,14 @@ app.component('invoiceList', {
         }, 2500);
 
         //DELETE
-        $scope.deleteState = function($id) {
-            $('#state_id').val($id);
+        $scope.deleteInvoice = function($id) {
+            alert();
+            $('#invoice_id').val($id);
         }
         $scope.deleteConfirm = function() {
-            $id = $('#state_id').val();
+            $id = $('#invoice_id').val();
             $http.get(
-                laravel_routes['deleteInvoice'], {
+                laravel_routes['deleteInvoiceData'], {
                     params: {
                         id: $id,
                     }
@@ -139,6 +148,8 @@ app.component('invoiceList', {
                     custom_noty('success', 'Invoice Deleted Successfully');
                     $('#invoice_list').DataTable().ajax.reload();
                     $location.path('/invoice-pkg/invoice/list');
+                    $('#search_invoice').focus();
+
                 }
             });
         }
@@ -167,6 +178,7 @@ app.component('invoiceList', {
         }
         $scope.loadDT = function (){
             datatables.fnFilter();
+            $('#search_invoice').focus();
 
         }
         $rootScope.loading = false;
@@ -181,10 +193,10 @@ app.component('invoiceView', {
     controller: function($http, HelperService, $scope, $routeParams, $rootScope) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
-        /*if (!self.hasPermission('view-invoice')) {
-            window.location = "#!/page-permission-denied";
-            return false;
-        }*/
+        // if (!self.hasPermission('view-invoice')) {
+        //     window.location = "#!/page-permission-denied";
+        //     return false;
+        // }
         /*self.region_permission = self.hasPermission('regions');
         self.city_permission = self.hasPermission('cities');*/
         self.angular_routes = angular_routes;
@@ -195,17 +207,8 @@ app.component('invoiceView', {
                 }
             }
         ).then(function(response) {
-            console.log(response);
             self.invoice = response.data.invoice;
             self.transactions = response.data.transactions;
-            console.log(self.invoice);
-            console.log(self.transactions);
-
-            /*self.state = response.data.state;
-            self.regions = response.data.regions;
-            self.cities = response.data.cities;
-            self.action = response.data.action;
-            self.theme = response.data.theme;*/
         });
         /* Tab Funtion */
         $('.btn-nxt').on("click", function() {

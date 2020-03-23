@@ -154,47 +154,6 @@ Content Wrap -->
                                     </div><!-- Row -->
                                 </div><!-- Tab Pane Wrap -->
                             </div><!-- Tab Pane -->
-                            <div class="tab-pane fade" id="city" data-animation="fadeInUp" data-animation-delay="300">
-                                <div class="tab-pane-wrap">
-                                    <div class="row">
-                                        <div class="col-lg-9 col-md-8">
-                                            <div class="table-responsive">
-                                                <table class="table table-form">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>City Name</th>
-                                                            <th>Active Status</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr ng-repeat="(index, city) in $ctrl.cities">
-                                                            <td>
-                                                                <span class="info">{{city.name}}</span>
-                                                            </td>
-                                                            <td>
-                                                                <span class="info  {{state.deleted_at ==NULL ? 'text-green' : 'text-red'}}">{{city.deleted_at ? 'Inactive' : 'Active'}}</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr ng-if="$ctrl.cities.length == 0">
-                                                            <td colspan="2" style="text-align: center;">
-                                                                <span class="info">No data available in table</span>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div><!-- Table Responsive -->
-                                        </div><!-- Column -->
-                                        <div class="tab-pane-footer">
-                                            <div class="row">
-                                                <div class="col-md-12">
-                                                    <a class="btn btn-secondary btn-prev my-tooltip"  ng-shortcut="'meta+shift+up'" ng-shortcut-click data-title="ctrl+shift+up">Previous</a>
-                                                </div>
-                                            </div>
-                                        </div><!-- Tab Footer -->
-                                    </div><!-- Row -->
-                                </div><!-- Tab Pane Wrap -->
-                            </div><!-- Tabe Pane -->
-                        </div><!-- Tab Content -->
                     </div><!-- Tab Form Body -->
                 </div><!-- Tab Form Wrap -->
             </div><!-- Page Form -->

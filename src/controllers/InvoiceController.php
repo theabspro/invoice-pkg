@@ -12,6 +12,7 @@ use Validator;
 use Yajra\Datatables\Datatables;
 use Session;
 use App\Config;
+use App\ActivityLog;
 
 class InvoiceController extends Controller {
 
@@ -54,11 +55,11 @@ class InvoiceController extends Controller {
 				'customers.code as account_code',
 				'customers.name as account_name',
 				'invoices.id as id',
-				'invoices.remarks as description',
+				DB::raw('IF(invoices.remarks IS NULL,"NA",invoices.remarks) as description'),
 				DB::raw('format(invoices.invoice_amount,0,"en_IN") as invoice_amount'),
 				DB::raw('format(invoices.received_amount,0,"en_IN") as received_amount'),
 				DB::raw('format((invoices.invoice_amount - invoices.received_amount),0,"en_IN") as balance_amount'),
-				'configs.name as status_name',
+				DB::raw('IF(configs.name IS NULL,"NA",configs.name) as status_name'),
 				'invoices.invoice_number'
 			)
 			//->leftJoin('configs as invoice_ofs','invoices.invoice_of_id','=','invoice_ofs.id')
@@ -100,10 +101,10 @@ class InvoiceController extends Controller {
 				$view_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/eye-active.svg');
 				$output = '';
 				//if (Entrust::can('view-invoice')) {
-					$output .= '<a href="#!/jv-pkg/invoice/view/' . $invoices->id . '" id = "" title="view"><img src="' . $view . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $view_active . '" onmouseout=this.src="' . $view . '"></a>';
+					$output .= '<a href="#!/invoice-pkg/invoice/view/' . $invoices->id . '" id = "" title="view"><img src="' . $view . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $view_active . '" onmouseout=this.src="' . $view . '"></a>';
 				/*}
 				if (Entrust::can('delete-invoice')) {*/
-					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#invoices-delete-modal" onclick="angular.element(this).scope().deleteLedger(' . $invoices->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>';
+					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#invoices-delete-modal" onclick="angular.element(this).scope().deleteInvoice(' . $invoices->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>';
 				/*}*/
 				return $output;
 			})
@@ -123,11 +124,11 @@ class InvoiceController extends Controller {
 				//'invoices.invoice_of_id',
 				'invoices.invoice_number',
 				'invoices.id as id',
-				'invoices.remarks as description',
+				DB::raw('IF(invoices.remarks IS NULL,"NA",invoices.remarks) as description'),
 				DB::raw('format(invoices.invoice_amount,0,"en_IN") as invoice_amount'),
 				DB::raw('format(invoices.received_amount,0,"en_IN") as received_amount'),
 				DB::raw('format((invoices.invoice_amount - invoices.received_amount),0,"en_IN") as balance_amount'),
-				'configs.name as status_name',
+				DB::raw('IF(configs.name IS NULL,"NA",configs.name) as status_name'),
 				'customers.code as account_code',
 				'customers.name as account_name',
 				'invoices.invoice_number'
@@ -144,7 +145,7 @@ class InvoiceController extends Controller {
 				//->leftJoin('configs as type','invoices.type_id','=','configs.id')
 				->select(
 					DB::raw('DATE_FORMAT(invoice_details.created_at,"%d-%m-%Y") as invoice_date'),
-					'configs.name as status_name',
+					DB::raw('IF(configs.name IS NULL,"NA",configs.name) as status_name'),
 				DB::raw('format(invoice_details.received_amount,0,"en_IN") as received_amount'),
 				DB::raw('format((invoice_details.invoice_amount - invoice_details.received_amount),0,"en_IN") as balance_amount')
 					//,'type.name as type_name'
@@ -160,11 +161,11 @@ class InvoiceController extends Controller {
 			return response()->json($this->data);
 	}
 
-	public function deleteInvoice(Request $request) {
+	public function deleteInvoiceData(Request $request) {
 		DB::beginTransaction();
 		try {
-			$invoice = Invoice::where('id', $request->id)->forceDelete();
-			$invoice = DB::table('invoice_details')->where('invoice_id', $request->id)->forceDelete();
+			$invoice = Invoice::where('id', $request->id)->delete();
+			$invoice_details = DB::table('invoice_details')->where('invoice_id', $request->id)->delete();
 			if ($invoice) {
 				$activity = new ActivityLog;
 				$activity->date_time = Carbon::now();

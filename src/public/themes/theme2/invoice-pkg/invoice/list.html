@@ -77,7 +77,7 @@
                     <div class="col-md-6">
                             <div class="input-text form-group mb-0">
                                 <label>Invoice Date</label>
-                                <input date-range-picker id="daterange1" name="daterange" class="form-control date-picker" type="text" ng-model="$ctrl.daterange1" value="{{$ctrl.daterange1}}" placeholder="Select Invoice Date"  />
+                                <input date-range-picker id="daterange1" name="daterange" class="form-control date-picker" type="text" ng-model="$ctrl.daterange1" value="{{$ctrl.daterange1}}" placeholder="Select Invoice Date"/>
                                 <!-- Input Group -->
                             </div>
                         </div><!-- Column -->
@@ -132,7 +132,7 @@
             <div class="modal-body">
                 <h5>Delete</h5>
                 <p>You can’t retrive the data again, Are you sure you want to delete? </p>
-                <input type="hidden" name="state_id" id="state_id" value="">
+                <input type="hidden" name="invoice_id" id="invoice_id" value="">
                 <button class="btn btn-grey" data-dismiss="modal" aria-label="Close">Cancel</button>
                 <button class="btn btn-rose" ng-click="deleteConfirm()" type="button" data-dismiss="modal" aria-label="Close">Yes</button>
             </div>

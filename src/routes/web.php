@@ -5,5 +5,5 @@ Route::group(['namespace' => 'Abs\InvoicePkg', 'middleware' => ['web', 'auth'], 
 	Route::get('/invoices/get-list', 'InvoiceController@getInvoiceList')->name('getInvoiceList');
 	Route::get('/invoice/get-view-data', 'InvoiceController@getInvoiceViewData')->name('getInvoiceViewData');
 	Route::get('/invoice/get-session-data', 'InvoiceController@getInvoiceSessionData')->name('getInvoiceSessionData');
-	Route::get('/invoice/delete', 'InvoiceController@deleteInvoice')->name('deleteInvoice');
+	Route::get('/invoice/delete', 'InvoiceController@deleteInvoiceData')->name('deleteInvoiceData');
 });
