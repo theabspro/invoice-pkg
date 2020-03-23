@@ -1,4 +1,4 @@
-Content Wrap -->
+<!-- Content Wrap -->
 <div class="content-wrap cndn-wrap">
     <!-- Page Header -->
     <div class="page-header">
@@ -79,18 +79,18 @@ Content Wrap -->
                                             </li>
                                             <li class="grid-col-3">
                                                 <span class="grid-col-label">Description</span>
-                                                <span class="grid-col-value">{{$ctrl.invoice.remarks}}</span>
+                                                <span class="grid-col-value">{{$ctrl.invoice.remarks ? $ctrl.invoice.remarks : 'N/A'}}</span>
                                             </li>
                                             <li class="grid-col-3">
                                                 <span class="grid-col-label">Status</span>
-                                                <span class="grid-col-value">{{$ctrl.invoice.status_name}}</span>
+                                                <span class="grid-col-value">{{$ctrl.invoice.status_name ? $ctrl.invoice.status_name : 'N/A'}}</span>
                                             </li>
                                            
                                         </ul>
                                         <div class=" tab-pane-footer">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <a class="btn btn-secondary btn-nxt">
+                                                    <a class="btn btn-secondary btn-nxt my-tooltip" ng-shortcut="'meta+shift+down'" ng-shortcut-click data-title="ctrl+shift+down">
                                                         Next
                                                     </a>
                                                 </div>
@@ -145,9 +145,6 @@ Content Wrap -->
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <a class="btn btn-secondary btn-prev my-tooltip"  ng-shortcut="'meta+shift+up'" ng-shortcut-click data-title="ctrl+shift+up">Previous</a>
-                                                    <a class="btn btn-secondary btn-nxt my-tooltip" ng-shortcut="'meta+shift+down'" ng-shortcut-click data-title="ctrl+shift+down">
-                                                        Next
-                                                    </a>
                                                 </div>
                                             </div>
                                         </div><!-- Tab Footer -->
@@ -159,4 +156,4 @@ Content Wrap -->
             </div><!-- Page Form -->
         </form>
     </div><!-- Page Main Content -->
-</div><!-- Content Wrap
+</div><!-- Content Wrap -->

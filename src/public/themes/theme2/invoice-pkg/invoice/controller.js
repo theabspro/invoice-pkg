@@ -8,7 +8,10 @@ app.component('invoiceList', {
         //     window.location = "#!/page-permission-denied";
         //     return false;
         // }
-        $('#search_invoice').focus();
+        setTimeout(function(){
+            $('#search_invoice').focus();
+        },500);
+
         
 
         $http.get(
@@ -25,10 +28,10 @@ app.component('invoiceList', {
                 }
             });
         self.hasPermission = HelperService.hasPermission;
-        if (!self.hasPermission('invoices')) {
+        /*if (!self.hasPermission('invoices')) {
             window.location = "#!/page-permission-denied";
             return false;
-        }
+        }*/
 
         $('.docDatePicker').bootstrapDP({
             endDate: 'today',
@@ -71,6 +74,7 @@ app.component('invoiceList', {
             paging: true,
             stateSave: true,
             scrollY: table_scroll + "px",
+            scrollX: true,
             scrollCollapse: true,
             ajax: {
                 url: laravel_routes['getInvoiceList'],
@@ -89,10 +93,10 @@ app.component('invoiceList', {
                 { data: 'invoice_date', searchable: false},
                 { data: 'invoice_number', name: 'invoices.invoice_number' },
                // { data: 'invoices_of_name', name: 'invoices.invoices_of_name' },
-                { data: 'account_code', name: 'customers.code', searchable: false },
-                { data: 'account_name', name: 'customers.name', searchable: false },
-                { data: 'invoice_amount',  searchable: false },
-                { data: 'received_amount',  searchable: false },
+                { data: 'account_code', name: 'customers.code', searchable: true },
+                { data: 'account_name', name: 'customers.name', searchable: true },
+                { data: 'invoice_amount',name: 'invoices.invoice_amount',  searchable: true },
+                { data: 'received_amount',name: 'invoices.received_amount', searchable: true },
                 { data: 'balance_amount',  searchable: false },
                 { data: 'description', name: 'invoices.remarks' },
                 { data: 'status_name', name: 'configs.name' },
@@ -132,7 +136,6 @@ app.component('invoiceList', {
 
         //DELETE
         $scope.deleteInvoice = function($id) {
-            alert();
             $('#invoice_id').val($id);
         }
         $scope.deleteConfirm = function() {
@@ -193,10 +196,10 @@ app.component('invoiceView', {
     controller: function($http, HelperService, $scope, $routeParams, $rootScope) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
-        if (!self.hasPermission('invoices')) {
-            window.location = "#!/page-permission-denied";
-            return false;
-        }
+        // if (!self.hasPermission('view-invoice')) {
+        //     window.location = "#!/page-permission-denied";
+        //     return false;
+        // }
         /*self.region_permission = self.hasPermission('regions');
         self.city_permission = self.hasPermission('cities');*/
         self.angular_routes = angular_routes;

@@ -28,8 +28,8 @@ class InvoicePkgPermissionSeeder extends Seeder {
 			[
 				'display_order' => 2,
 				'parent' => 'invoices',
-				'name' => 'edit-invoice',
-				'display_name' => 'Edit',
+				'name' => 'view-invoice',
+				'display_name' => 'View',
 			],
 			[
 				'display_order' => 3,
