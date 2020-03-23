@@ -25,10 +25,10 @@ app.component('invoiceList', {
                 }
             });
         self.hasPermission = HelperService.hasPermission;
-        /*if (!self.hasPermission('invoices')) {
+        if (!self.hasPermission('invoices')) {
             window.location = "#!/page-permission-denied";
             return false;
-        }*/
+        }
 
         $('.docDatePicker').bootstrapDP({
             endDate: 'today',
@@ -193,10 +193,10 @@ app.component('invoiceView', {
     controller: function($http, HelperService, $scope, $routeParams, $rootScope) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
-        // if (!self.hasPermission('view-invoice')) {
-        //     window.location = "#!/page-permission-denied";
-        //     return false;
-        // }
+        if (!self.hasPermission('invoices')) {
+            window.location = "#!/page-permission-denied";
+            return false;
+        }
         /*self.region_permission = self.hasPermission('regions');
         self.city_permission = self.hasPermission('cities');*/
         self.angular_routes = angular_routes;
