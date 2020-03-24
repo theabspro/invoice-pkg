@@ -135,7 +135,7 @@ class InvoiceController extends Controller {
 			//->leftJoin('configs as invoice_ofs','invoices.invoice_of_id','=','invoice_ofs.id')
 				->leftJoin('configs', 'invoices.status_id', '=', 'configs.id')
 				->leftJoin('customers', 'invoices.customer_id', '=', 'customers.id')
-				->where('invoices.company_id', /*Auth::user()->company_id*/2)
+				->where('invoices.company_id', Auth::user()->company_id)
 				->where('invoices.id', $request->id)
 				->first();
 			$this->data['transactions'] = DB::table('invoice_details')
