@@ -6,7 +6,6 @@ use Abs\HelperPkg\Traits\SeederTrait;
 use App\Company;
 use App\Config;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Invoice extends Model {
 	use SeederTrait;
@@ -18,6 +17,13 @@ class Invoice extends Model {
 		'description',
 		'company_id',
 	];
+
+	public function outlet() {
+		return $this->belongsTo('App\Outlet', 'outlet_id');
+	}
+	public function business() {
+		return $this->belongsTo('Abs\BusinessPkg\Sbu', 'sbu_id');
+	}
 
 	public static function createFromObject($record_data) {
 
