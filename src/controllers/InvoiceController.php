@@ -219,7 +219,7 @@ class InvoiceController extends Controller {
 				'invoice_number' => $api_invoice['INVOICE'],
 				'company_id' => Auth::user()->company_id,
 			]);
-			$invoice->customer_id = $request->customer_id;
+			$invoice->customer_id = $entity->id;
 			$invoice->invoice_number = $api_invoice['INVOICE'];
 			$invoice->invoice_date = $api_invoice['TRANSDATE'];
 			$invoice->invoice_amount = $api_invoice['AMOUNTCUR'];
@@ -235,27 +235,39 @@ class InvoiceController extends Controller {
 			'invoices.invoice_number',
 			DB::raw('DATE_FORMAT(invoices.invoice_date,"%d/%m/%Y") as invoice_date'),
 			'outlets.code as outlet_name',
-			'sbus.name as business_name',
+			'sbus.name as sbu_name',
 			DB::raw('format((invoices.invoice_amount),0,"en_IN") as invoice_amount'),
 			DB::raw('format((invoices.received_amount),0,"en_IN") as received_amount'),
 			DB::raw('COALESCE(invoices.remarks, "--") as remarks'),
-			DB::raw('format((invoices.invoice_amount - invoices.received_amount),0,"en_IN") as balence_amount')
+			DB::raw('format((invoices.invoice_amount - invoices.received_amount),0,"en_IN") as balance_amount')
 		)
 			->leftjoin('outlets', 'outlets.id', 'invoices.outlet_id')
 			->leftjoin('sbus', 'sbus.id', 'invoices.sbu_id')
 			->where('customer_id', $entity->id)
 			->get()
 		;
-		// dd($invoices_lists);
-		return Datatables::of($invoices)
-		// ISSUE : variable name
-		// ->addColumn('child_checkbox', function ($invoices_list) {
-		// 	$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $invoices_list->id . "' name='child_boxes' value='" . $invoices_list->invoice_number . "' class='jv_Checkbox'/><label for='child_" . $invoices_list->id . "'></label></div></td>";
-			->addColumn('child_checkbox', function ($invoice) {
-				$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $invoice->id . "' name='child_boxes' value='" . $invoice->invoice_number . "' class='jv_Checkbox'/><label for='child_" . $invoice->id . "'></label></div></td>";
-				return $checkbox;
-			})
-			->rawColumns(['child_checkbox'])
-			->make(true);
+
+		return response()->json([
+			'success' => true,
+			'invoices' => $invoices,
+		]);
+
+		// // dd($invoices_lists);
+		// return Datatables::of($invoices)
+		// // ISSUE : variable name
+		// // ->addColumn('child_checkbox', function ($invoices_list) {
+		// // 	$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $invoices_list->id . "' name='child_boxes' value='" . $invoices_list->invoice_number . "' class='jv_Checkbox'/><label for='child_" . $invoices_list->id . "'></label></div></td>";
+		// 	->addColumn('child_checkbox', function ($invoice) {
+		// 		$checkbox = "
+		// 		<td>
+		// 			<div class='table-checkbox1'>
+		// 				<input type='checkbox' id='child_" . $invoice->id . "' name='invoice_ids[]' value='" . $invoice->id . "' class='jv_Checkbox'/>
+		// 				<label for='child_" . $invoice->id . "'></label>
+		// 			</div>
+		// 		</td>";
+		// 		return $checkbox;
+		// 	})
+		// 	->rawColumns(['child_checkbox'])
+		// 	->make(true);
 	}
 }
