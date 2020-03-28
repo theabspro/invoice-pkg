@@ -1,10 +1,14 @@
 <?php
 
 namespace Abs\InvoicePkg;
+use Abs\CustomerPkg\Customer;
 use Abs\InvoicePkg\Invoice;
 use App\ActivityLog;
 use App\Config;
 use App\Http\Controllers\Controller;
+use App\Outlet;
+use App\Sbu;
+use Artisaninweb\SoapWrapper\SoapWrapper;
 use Auth;
 use Carbon\Carbon;
 use DB;
@@ -15,8 +19,10 @@ use Yajra\Datatables\Datatables;
 
 class InvoiceController extends Controller {
 
-	public function __construct() {
+	public function __construct(SoapWrapper $soapWrapper) {
 		$this->data['theme'] = config('custom.admin_theme');
+		$this->company_id = config('custom.company_id');
+		$this->soapWrapper = $soapWrapper;
 	}
 
 	public function getInvoiceSessionData() {
@@ -184,5 +190,72 @@ class InvoiceController extends Controller {
 			DB::rollBack();
 			return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
 		}
+	}
+
+	public function getInvoices(Request $request) {
+		$this->soapWrapper->add('Invoice', function ($service) {
+			$service
+				->wsdl('http://tvsapp.tvs.in/MobileAPi/WebService1.asmx?wsdl')
+				->trace(true);
+		});
+		$entity = Customer::find($request->account_id);
+		$params = ['ACCOUNTNUM' => $entity->code];
+		$getResult = $this->soapWrapper->call('Invoice.GetCustomerinvoice', [$params]);
+		$customer_invoices = json_decode($getResult->GetCustomerinvoiceResult, true);
+		if (empty($customer_invoices)) {
+			return response()->json(['success' => false, 'error' => 'No Invoices available!.']);
+		}
+		$api_invoices = $customer_invoices['Table'];
+		if (count($api_invoices) == 0) {
+			return response()->json(['success' => false, 'error' => 'No Invoices available!.']);
+		}
+
+		foreach ($api_invoices as $api_invoice) {
+
+			$outlet = Outlet::select('id')->where('code', $api_invoice['OUTLET'])->company()->first();
+			$sbu = Sbu::select('id')->where('name', $api_invoice['BUSINESSUNIT'])->company()->first();
+
+			$invoice = Invoice::firstOrNew([
+				'invoice_number' => $api_invoice['INVOICE'],
+				'company_id' => Auth::user()->company_id,
+			]);
+			$invoice->customer_id = $request->customer_id;
+			$invoice->invoice_number = $api_invoice['INVOICE'];
+			$invoice->invoice_date = $api_invoice['TRANSDATE'];
+			$invoice->invoice_amount = $api_invoice['AMOUNTCUR'];
+			$invoice->received_amount = $api_invoice['SETTLEAMOUNTCUR'];
+			$invoice->remarks = $api_invoice['TXT'];
+			$invoice->outlet_id = $outlet->id;
+			$invoice->sbu_id = $sbu->id;
+			$invoice->save();
+		}
+
+		$invoices = Invoice::select(
+			'invoices.id',
+			'invoices.invoice_number',
+			DB::raw('DATE_FORMAT(invoices.invoice_date,"%d/%m/%Y") as invoice_date'),
+			'outlets.code as outlet_name',
+			'sbus.name as business_name',
+			DB::raw('format((invoices.invoice_amount),0,"en_IN") as invoice_amount'),
+			DB::raw('format((invoices.received_amount),0,"en_IN") as received_amount'),
+			DB::raw('COALESCE(invoices.remarks, "--") as remarks'),
+			DB::raw('format((invoices.invoice_amount - invoices.received_amount),0,"en_IN") as balence_amount')
+		)
+			->leftjoin('outlets', 'outlets.id', 'invoices.outlet_id')
+			->leftjoin('sbus', 'sbus.id', 'invoices.sbu_id')
+			->where('customer_id', $entity->id)
+			->get()
+		;
+		// dd($invoices_lists);
+		return Datatables::of($invoices)
+		// ISSUE : variable name
+		// ->addColumn('child_checkbox', function ($invoices_list) {
+		// 	$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $invoices_list->id . "' name='child_boxes' value='" . $invoices_list->invoice_number . "' class='jv_Checkbox'/><label for='child_" . $invoices_list->id . "'></label></div></td>";
+			->addColumn('child_checkbox', function ($invoice) {
+				$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $invoice->id . "' name='child_boxes' value='" . $invoice->invoice_number . "' class='jv_Checkbox'/><label for='child_" . $invoice->id . "'></label></div></td>";
+				return $checkbox;
+			})
+			->rawColumns(['child_checkbox'])
+			->make(true);
 	}
 }
