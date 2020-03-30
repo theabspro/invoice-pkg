@@ -230,19 +230,23 @@ class InvoiceController extends Controller {
 			$invoice->save();
 		}
 
-		$invoices = Invoice::select(
-			'invoices.id',
-			'invoices.invoice_number',
-			DB::raw('DATE_FORMAT(invoices.invoice_date,"%d/%m/%Y") as invoice_date'),
-			'outlets.code as outlet_name',
-			'sbus.name as sbu_name',
-			DB::raw('format((invoices.invoice_amount),0,"en_IN") as invoice_amount'),
-			DB::raw('format((invoices.received_amount),0,"en_IN") as received_amount'),
-			DB::raw('COALESCE(invoices.remarks, "--") as remarks'),
-			DB::raw('format((invoices.invoice_amount - invoices.received_amount),0,"en_IN") as balance_amount')
-		)
-			->leftjoin('outlets', 'outlets.id', 'invoices.outlet_id')
-			->leftjoin('sbus', 'sbus.id', 'invoices.sbu_id')
+		$invoices = Invoice::with([
+			'outlet',
+			'sbu',
+		])
+		// select(
+		// 	'invoices.id',
+		// 	'invoices.invoice_number',
+		// 	DB::raw('DATE_FORMAT(invoices.invoice_date,"%d/%m/%Y") as invoice_date'),
+		// 	'outlets.code as outlet_name',
+		// 	'sbus.name as sbu_name',
+		// 	DB::raw('format((invoices.invoice_amount),0,"en_IN") as invoice_amount'),
+		// 	DB::raw('format((invoices.received_amount),0,"en_IN") as received_amount'),
+		// 	DB::raw('COALESCE(invoices.remarks, "--") as remarks'),
+		// 	DB::raw('format((invoices.invoice_amount - invoices.received_amount),0,"en_IN") as balance_amount')
+		// )
+		// 	->leftjoin('outlets', 'outlets.id', 'invoices.outlet_id')
+		// 	->leftjoin('sbus', 'sbus.id', 'invoices.sbu_id')
 			->where('customer_id', $entity->id)
 			->get()
 		;
