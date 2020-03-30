@@ -22,7 +22,13 @@ class Invoice extends Model {
 	public function outlet() {
 		return $this->belongsTo('App\Outlet', 'outlet_id');
 	}
+
+	//ISSUE : naming
 	public function business() {
+		return $this->belongsTo('Abs\BusinessPkg\Sbu', 'sbu_id');
+	}
+
+	public function sbu() {
 		return $this->belongsTo('Abs\BusinessPkg\Sbu', 'sbu_id');
 	}
 
