@@ -2,18 +2,15 @@ app.component('invoiceList', {
     templateUrl: invoice_list_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element, $mdSelect) {
         $scope.loading = true;
+        $('#search_invoice').focus();
         var self = this;
         self.theme = admin_theme;
-        //  if (!self.hasPermission('invoices')) {
-        //     window.location = "#!/page-permission-denied";
-        //     return false;
-        // }
-        setTimeout(function(){
-            $('#search_invoice').focus();
-        },500);
-
+        self.hasPermission = HelperService.hasPermission;
+         if (!self.hasPermission('invoices')) {
+            window.location = "#!/page-permission-denied";
+            return false;
+        }
         
-
         $http.get(
                 laravel_routes['getInvoiceSessionData']
             ).then(function(response) {
@@ -27,7 +24,6 @@ app.component('invoiceList', {
                     $('#search_invoice').val(response.data.search_invoice);
                 }
             });
-        self.hasPermission = HelperService.hasPermission;
         /*if (!self.hasPermission('invoices')) {
             window.location = "#!/page-permission-denied";
             return false;
@@ -118,14 +114,14 @@ app.component('invoiceList', {
         $scope.clear_search = function() {
             $('#search_invoice').val('');
             $('#invoice_list').DataTable().search('').draw();
-            $('#search_invoice').focus();
+            // $('#search_invoice').focus();
 
         }
 
         var dataTables = $('#invoice_list').dataTable();
         $("#search_invoice").keyup(function() {
             dataTables.fnFilter(this.value);
-        $('#search_invoice').focus();
+        // $('#search_invoice').focus();
 
         });
 
@@ -179,11 +175,11 @@ app.component('invoiceList', {
             $('#daterange1').val(null);
             datatables.fnFilter();
         }
-        $scope.loadDT = function (){
-            datatables.fnFilter();
-            $('#search_invoice').focus();
+        // $scope.loadDT = function (){
+        //     datatables.fnFilter();
+        //     $('#search_invoice').focus();
 
-        }
+        // }
         $rootScope.loading = false;
         }, 2500);
     }
@@ -196,10 +192,10 @@ app.component('invoiceView', {
     controller: function($http, HelperService, $scope, $routeParams, $rootScope) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
-        // if (!self.hasPermission('view-invoice')) {
-        //     window.location = "#!/page-permission-denied";
-        //     return false;
-        // }
+        if (!self.hasPermission('view-invoice')) {
+            window.location = "#!/page-permission-denied";
+            return false;
+        }
         /*self.region_permission = self.hasPermission('regions');
         self.city_permission = self.hasPermission('cities');*/
         self.angular_routes = angular_routes;
