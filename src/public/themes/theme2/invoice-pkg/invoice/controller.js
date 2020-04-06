@@ -3,6 +3,8 @@ app.component('invoiceList', {
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element, $mdSelect) {
         $scope.loading = true;
         $('#search_invoice').focus();
+        $('li').removeClass('active');
+        $('.invoice_flink').addClass('active').trigger('click');
         var self = this;
         self.theme = admin_theme;
         self.hasPermission = HelperService.hasPermission;
