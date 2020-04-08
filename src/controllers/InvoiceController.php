@@ -38,6 +38,7 @@ class InvoiceController extends Controller {
 	}
 
 	public function getInvoiceList(Request $request) {
+		// dd($request->all());
 		Session::put('search_invoice', $request->search['value']);
 		Session::put('account_name', $request->account_name);
 		Session::put('account_code', $request->account_code);
@@ -47,7 +48,7 @@ class InvoiceController extends Controller {
 		$start_date = '';
 		$end_date = '';
 		if (!empty($request->invoice_date)) {
-			$date_range = explode(' - ', $request->invoice_date);
+			$date_range = explode(' to ', $request->invoice_date);
 			$start_date = $date_range[0];
 			$end_date = $date_range[1];
 		}
@@ -73,17 +74,17 @@ class InvoiceController extends Controller {
 			->where('invoices.company_id', Auth::user()->company_id)
 			->where(function ($query) use ($request) {
 				if (!empty($request->account_code)) {
-					$query->where('customers.code', 'LIKE', $request->account_code);
+					$query->where('customers.code', 'LIKE', $request->account_code . '%');
 				}
 			})
 			->where(function ($query) use ($request) {
 				if (!empty($request->account_name)) {
-					$query->where('customers.name', 'LIKE', $request->account_name);
+					$query->where('customers.name', 'LIKE', $request->account_name . '%');
 				}
 			})
 			->where(function ($query) use ($request) {
 				if (!empty($request->invoice_number)) {
-					$query->where('invoices.invoice_number', 'LIKE', $request->invoice_number);
+					$query->where('invoices.invoice_number', 'LIKE', $request->invoice_number . '%');
 				}
 			})
 			->where(function ($query) use ($request) {

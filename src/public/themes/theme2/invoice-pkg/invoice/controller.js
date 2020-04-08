@@ -26,10 +26,6 @@ app.component('invoiceList', {
                 $('#search_invoice').val(response.data.search_invoice);
             }
         });
-        /*if (!self.hasPermission('invoices')) {
-            window.location = "#!/page-permission-denied";
-            return false;
-        }*/
 
         $('.docDatePicker').bootstrapDP({
             endDate: 'today',
@@ -79,11 +75,11 @@ app.component('invoiceList', {
                     type: "GET",
                     dataType: "json",
                     data: function(d) {
-                        d.account_name = self.account_name;
-                        d.account_code = self.account_code;
-                        d.invoice_number = self.invoice_number;
+                        d.account_name = $('#account_name').val();
+                        d.account_code = $('#account_code').val();
+                        d.invoice_number = $('#invoice_number').val();
                         d.invoice_date = $('#daterange1').val();
-                        d.config_status = self.config_status;
+                        d.config_status = $('#status').val();
                     },
                 },
                 columns: [
@@ -124,13 +120,7 @@ app.component('invoiceList', {
             $("#search_invoice").keyup(function() {
                 dataTables.fnFilter(this.value);
                 // $('#search_invoice').focus();
-
             });
-
-            //FOCUS ON SEARCH FIELD
-            setTimeout(function() {
-                $('div.dataTables_filter input').focus();
-            }, 2500);
 
             //DELETE
             $scope.deleteInvoice = function($id) {
@@ -168,19 +158,39 @@ app.component('invoiceList', {
                 }
             });
 
-            var datatables = $('#invoice_list').dataTable();
+            //FILTER
+            $('#daterange1').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD-MM-YYYY') + ' to ' + picker.endDate.format('DD-MM-YYYY'));
+                dataTables.fnFilter();
+            });
+            // $('#daterange1').on('change',function(){
+            //     dataTables.fnFilter();
+            // });
+            $('#invoice_number').keyup(function() {
+                dataTables.fnFilter();
+            });
+            $('#account_code').keyup(function() {
+                dataTables.fnFilter();
+            });
+            $('#account_name').keyup(function() {
+                dataTables.fnFilter();
+            });
+            $scope.onSelectedStatus = function(id) {
+                $('#status').val(id);
+                dataTables.fnFilter();
+            }
+
             $scope.reset_filter = function() {
-                self.account_code = '';
-                self.account_name = '';
-                self.invoice_number = '';
-                self.config_status = '';
+                $('#invoice_number').val('');
+                $('#account_code').val('');
+                $('#account_name').val('');
+                $('#status').val('');
                 $('#daterange1').val(null);
-                datatables.fnFilter();
+                dataTables.fnFilter();
             }
             // $scope.loadDT = function (){
             //     datatables.fnFilter();
             //     $('#search_invoice').focus();
-
             // }
             $rootScope.loading = false;
         }, 2500);
