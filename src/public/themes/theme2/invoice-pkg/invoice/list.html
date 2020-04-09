@@ -75,34 +75,39 @@
             <div class="modal-body">
                 <div class="row modal-row">
                     <div class="col-md-6">
-                            <div class="input-text form-group mb-0">
-                                <label>Invoice Date</label>
-                                <input date-range-picker id="daterange1" name="daterange" class="form-control date-picker" type="text" ng-model="$ctrl.daterange1" placeholder="Select Invoice Date"/>
-                                <!-- Input Group -->
+                        <div class="input-text form-group mb-0">
+                            <label>Invoice Date</label>
+                            <div class="input-group date">
+                                <input date-range-picker id="daterange1" name="daterange" class="form-control date-picker" type="text" ng-model="$ctrl.daterange1" placeholder="Select Invoice Date" />
+                                <span class="input-group-addon">
+                                    <img class="img-responsive" src="./public/theme/img/content/calender-gray-icon.svg" alt="Calendar Image" />
+                                </span>
                             </div>
-                        </div><!-- Column -->
+                            <!-- Input Group -->
+                        </div>
+                    </div><!-- Column -->
                     <div class="col-md-6">
                         <div class="input-text form-group">
                             <label>Invoice Number</label>
-                            <input type="text" class="form-control" name="name" id='invoice_number' placeholder="Enter Invoice Number" aria-invalid="false" autocomplete="off"  ng-model="$ctrl.invoice_number">
+                            <input type="text" class="form-control" name="name" id='invoice_number' placeholder="Enter Invoice Number" aria-invalid="false" autocomplete="off" ng-model="$ctrl.invoice_number">
                         </div><!-- Field -->
                     </div><!-- Column -->
                     <div class="col-md-6">
                         <div class="input-text form-group">
                             <label>Account Code</label>
-                            <input type="text" class="form-control" name="account_code" id="account_code" placeholder="Enter Account Code" aria-invalid="false" autocomplete="off"  ng-model="$ctrl.account_code">
+                            <input type="text" class="form-control" name="account_code" id="account_code" placeholder="Enter Account Code" aria-invalid="false" autocomplete="off" ng-model="$ctrl.account_code">
                         </div><!-- Field -->
                     </div><!-- Column -->
                     <div class="col-md-6">
                         <div class="input-text form-group">
                             <label>Account Name</label>
-                            <input type="text" class="form-control" name="name" id="account_name" placeholder="Enter Account Name" aria-invalid="false" autocomplete="off"  ng-model="$ctrl.account_name">
+                            <input type="text" class="form-control" name="name" id="account_name" placeholder="Enter Account Name" aria-invalid="false" autocomplete="off" ng-model="$ctrl.account_name">
                         </div><!-- Field -->
                     </div><!-- Column -->
                     <div class="col-md-6">
                         <div class="input-text form-group">
                             <label>Status</label>
-                            <md-select ng-model="$ctrl.config_status" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedStatus($ctrl.config_status.id)" placeholder="Select Status"  ng-change="loadDT()">
+                            <md-select ng-model="$ctrl.config_status" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedStatus($ctrl.config_status.id)" placeholder="Select Status" ng-change="loadDT()">
                                 <md-select-header class="demo-select-header">
                                     <input ng-model="searchTerm1" type="search" placeholder="Search for a Status" class="demo-header-searchbox md-text">
                                 </md-select-header>

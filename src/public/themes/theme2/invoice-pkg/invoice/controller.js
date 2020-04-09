@@ -163,6 +163,9 @@ app.component('invoiceList', {
                 $(this).val(picker.startDate.format('DD-MM-YYYY') + ' to ' + picker.endDate.format('DD-MM-YYYY'));
                 dataTables.fnFilter();
             });
+            $('#daterange1').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+            });
             // $('#daterange1').on('change',function(){
             //     dataTables.fnFilter();
             // });
