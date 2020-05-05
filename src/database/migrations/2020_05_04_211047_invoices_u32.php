@@ -17,8 +17,8 @@ class InvoicesU32 extends Migration {
 			$table->unsignedInteger('invoice_of_id')->nullable()->after('id');
 			$table->unsignedInteger('entity_id')->nullable()->after('invoice_of_id');
 			$table->unsignedInteger("created_by_id")->nullable()->after('remarks');
-			$table->unsignedInteger("updated_by_id")->nullable()->after('updated_by_id');
-			$table->unsignedInteger("deleted_by_id")->nullable()->after('deleted_by_id');
+			$table->unsignedInteger("updated_by_id")->nullable()->after('created_by_id');
+			$table->unsignedInteger("deleted_by_id")->nullable()->after('updated_by_id');
 			$table->softDeletes();
 
 			$table->foreign("invoice_of_id")->references("id")->on("configs")->onDelete("CASCADE")->onUpdate("CASCADE");
