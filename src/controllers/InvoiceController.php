@@ -213,8 +213,8 @@ class InvoiceController extends Controller {
 
 		foreach ($api_invoices as $api_invoice) {
 
-			$outlet = Outlet::select('id')->where('code', $api_invoice['OUTLET'])->company()->first();
-			$sbu = Sbu::select('id')->where('name', $api_invoice['BUSINESSUNIT'])->company()->first();
+			$outlet = Outlet::select('id')->where('code', $api_invoice['OUTLET'])->where('company_id', Auth::user()->company_id)->first();
+			$sbu = Sbu::select('id')->where('name', $api_invoice['BUSINESSUNIT'])->where('company_id', Auth::user()->company_id)->first();
 
 			$invoice = Invoice::firstOrNew([
 				'invoice_number' => $api_invoice['INVOICE'],
