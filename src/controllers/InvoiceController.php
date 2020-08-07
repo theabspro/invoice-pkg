@@ -196,7 +196,7 @@ class InvoiceController extends Controller {
 	public function getInvoices(Request $request) {
 		$this->soapWrapper->add('Invoice', function ($service) {
 			$service
-				->wsdl('http://tvsapp.tvs.in/MobileAPi/WebService1.asmx?wsdl')
+				->wsdl('https://tvsapp.tvs.in/MobileAPi/WebService1.asmx?wsdl')
 				->trace(true);
 		});
 		$entity = Customer::find($request->account_id);
