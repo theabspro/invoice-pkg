@@ -16,6 +16,7 @@ app.component('invoiceList', {
         $http.get(
             laravel_routes['getInvoiceSessionData']
         ).then(function(response) {
+            console.log(response);
             if (response.data.success) {
                 self.status = response.data.status;
                 self.account_code = response.data.account_code;
@@ -158,12 +159,30 @@ app.component('invoiceList', {
                 }
             });
 
+            /* DateRange Picker */
+            $('.daterange').daterangepicker({
+                autoUpdateInput: false,
+                locale: {
+                    cancelLabel: 'Clear',
+                    format: "DD-MM-YYYY"
+                }
+            });
+
+            $('.align-left.daterange').daterangepicker({
+                autoUpdateInput: false,
+                "opens": "left",
+                locale: {
+                    cancelLabel: 'Clear',
+                    format: "DD-MM-YYYY"
+                }
+            });
+
             //FILTER
-            $('#daterange1').on('apply.daterangepicker', function(ev, picker) {
+            $('.daterange').on('apply.daterangepicker', function(ev, picker) {
                 $(this).val(picker.startDate.format('DD-MM-YYYY') + ' to ' + picker.endDate.format('DD-MM-YYYY'));
                 dataTables.fnFilter();
             });
-            $('#daterange1').on('cancel.daterangepicker', function(ev, picker) {
+            $('.daterange').on('cancel.daterangepicker', function(ev, picker) {
                 $(this).val('');
             });
             // $('#daterange1').on('change',function(){
